@@ -1,0 +1,47 @@
+server:
+  port: 8181
+
+
+spring:
+  security:
+    user:
+      name: admin
+      password: admin123
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 20MB
+  application:
+    title: Learn Spring
+    version: v3.0.4
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5454/clothing_shop
+    username: postgres
+    password: lang@123
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    show-sql: true
+springdoc:
+  api-docs:
+    enabled: true
+
+# JWT CONFIG
+# Key secret generate https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx
+# expiration 3600 seconds equal 1 hour
+jwt:
+  url: '/authorization'
+  header: 'Authorization'
+  prefix: 'Bearer '
+  expire: 120
+  secrete: '66546A576E5A7234743777217A25432A462D4A614E645267556B587032733576'
+
+
+
