@@ -41,7 +41,7 @@ jwt:
   header: 'Authorization'
   prefix: 'Bearer '
   expire: 120
-  secrete: '66546A576E5A7234743777217A25432A462D4A614E645267556B587032733576'
+  secrete: '42742c99f7c62f94a4fabc5940800b5a98d0d3b30e2348bf0aa87683d6383698'
 
 
 

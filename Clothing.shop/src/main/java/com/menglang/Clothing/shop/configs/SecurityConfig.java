@@ -1,5 +1,7 @@
 package com.menglang.Clothing.shop.configs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.menglang.Clothing.shop.secuity.Authentication.CustomAuthenticationProvider;
 import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +27,10 @@ import java.util.List;
 public class SecurityConfig extends JwtConfig{
 
     private final CustomUserDetailService userDetailService;
-    
+    private final CustomAuthenticationProvider authenticationProvider;
+    private final ObjectMapper objectMapper;
+    private final JwtConfig jwtConfig;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -35,15 +40,16 @@ public class SecurityConfig extends JwtConfig{
 //    public HttpSecurity securityFilterChain(HttpSecurity http) throws Exception {
 //        return http.authorizeHttpRequests(requests ->
 //                requests.requestMatchers("/api/***").permitAll()
-//                        .requestMatchers("auth/api/***").authenticated())
+//                        .requestMatchers("/console-h2/**").permitAll()
+//                        .requestMatchers("auth/api/***").authenticated());
 //                .csrf(AbstractHttpConfigurer::disable)
 //                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
 //                        .configurationSource(corsConfigurationSource()))
 //                .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 //                .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
-//
-//    }
+
+  //  }
 //
 //    @Bean
 //    public CorsConfigurationSource corsConfigurationSource() {
