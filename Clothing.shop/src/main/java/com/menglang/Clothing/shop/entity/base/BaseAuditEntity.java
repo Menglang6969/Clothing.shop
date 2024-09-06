@@ -22,7 +22,6 @@ public abstract class BaseAuditEntity <T extends Serializable> extends BaseEntit
     @CreatedDate
     private Date createdAt;
 
-
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_date",insertable = false)
     @LastModifiedDate

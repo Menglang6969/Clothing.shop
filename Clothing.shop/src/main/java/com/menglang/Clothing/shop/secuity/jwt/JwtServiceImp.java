@@ -1,16 +1,17 @@
 package com.menglang.Clothing.shop.secuity.jwt;
 
 import com.menglang.Clothing.shop.configs.JwtConfig;
+import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetail;
 import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,6 +42,7 @@ public class JwtServiceImp extends JwtConfig implements JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
     @Override
     public SecretKey getSignInKey() {
         byte[] bytes = Base64.getDecoder().decode(this.getSecrete().getBytes(StandardCharsets.UTF_8));
@@ -89,7 +92,43 @@ public class JwtServiceImp extends JwtConfig implements JwtService {
 
     @Override
     public boolean isValidToken(String token) {
-
-        return false;
+        final String username=extractUsername(token);
+        UserDetails userDetails= userDetailService.loadUserByUsername(username);
+        return userDetails!=null;
     }
+
+    private String extractUsername(String token){
+        return extractClaimsTFunction(token, Claims::getSubject);
+    }
+
+    private <T> T extractClaimsTFunction(String token, Function<Claims,T> claimsTFunction){
+        final Claims claims=extractAllClaims(token);
+        return claimsTFunction.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token){
+        try{
+            return Jwts.parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+        }catch (ExpiredJwtException ex){
+            log.error(ex.getLocalizedMessage());
+            throw new CustomMessageException("Token was Expired",String.valueOf(HttpStatus.UNAUTHORIZED.value()));
+        }catch (UnsupportedJwtException e){
+            log.error(e.getLocalizedMessage());
+            throw new CustomMessageException("Token is not Support",String.valueOf(HttpStatus.UNAUTHORIZED.value()));
+        }catch (MalformedJwtException e){
+            log.error(e.getLocalizedMessage());
+            throw new CustomMessageException("Token is Invalid",String.valueOf(HttpStatus.UNAUTHORIZED.value()));
+        }catch (Exception e){
+            log.error(e.getLocalizedMessage());
+            throw new CustomMessageException(e.getMessage(),String.valueOf(HttpStatus.UNAUTHORIZED.value()));
+        }
+    }
+
+
+
 }

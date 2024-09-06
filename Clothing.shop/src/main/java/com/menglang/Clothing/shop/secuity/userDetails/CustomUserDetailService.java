@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,6 +52,29 @@ public class CustomUserDetailService implements UserDetailsService {
                         .collect(Collectors.toList())
         );
 
+    }
+
+    public void saveUserAttemptAuthentication(String username){
+        Optional<UserEntity> user= Optional.ofNullable(userRepository.findUserByUsername(username).orElseThrow(() -> new CustomMessageException("User Not Found", String.valueOf(HttpStatus.UNAUTHORIZED.value()))));
+
+        int attempt=user.get().getAttempt()+1;
+        user.get().setAttempt(attempt);
+        user.get().setUpdateAt(new Date());
+        if(user.get().getAttempt()>3){
+            log.error("User {} update status blocked",username);
+
+        }
+        userRepository.save(user.get());
+    }
+
+    public void updateAttempt (String username){
+        Optional<UserEntity> user=Optional.ofNullable(userRepository.findUserByUsername(username)
+                .orElseThrow(() ->
+                        new CustomMessageException("User Not Found", String.valueOf(HttpStatus.UNAUTHORIZED.value()))));
+
+        user.get().setAttempt(0);
+        user.get().setUpdateAt(new Date());
+        userRepository.save(user.get());
     }
 
 }
