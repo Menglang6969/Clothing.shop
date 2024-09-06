@@ -27,14 +27,14 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            return null;
+            return this.customUserDetail(username);
         }catch (UsernameNotFoundException e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
     }
 
     public CustomUserDetail customUserDetail(String username) throws CustomMessageException{
-        Optional<UserEntity> user= Optional.ofNullable(userRepository.findUserByEmail(username));
+        Optional<UserEntity> user= userRepository.findUserByUsername(username);
         if(user.isEmpty()){
             log.error("user not found");
             throw CustomMessageException.builder()
