@@ -22,6 +22,6 @@ public class AdminController {
     public ResponseEntity<Object> index(Principal principal) throws Exception {
         var username=principal.getName();
         log.info("admin : username {} request get user data",username);
-        return ResponseEntity.ok(userService.findUserByUsername(username));
+        return ResponseEntity.ok(userService.findByUsername(username));
     }
 }

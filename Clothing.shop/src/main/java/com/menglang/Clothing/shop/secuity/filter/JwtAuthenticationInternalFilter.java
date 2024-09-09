@@ -2,7 +2,7 @@ package com.menglang.Clothing.shop.secuity.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.menglang.Clothing.shop.configs.JwtConfig;
-import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+
 import com.menglang.Clothing.shop.exceptions.CustomMessageExceptionUtils;
 import com.menglang.Clothing.shop.secuity.jwt.JwtService;
 import io.jsonwebtoken.Claims;
@@ -13,20 +13,20 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
-@Builder
+@Component
 public class JwtAuthenticationInternalFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;

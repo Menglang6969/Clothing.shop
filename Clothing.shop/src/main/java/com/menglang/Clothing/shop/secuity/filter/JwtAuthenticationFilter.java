@@ -25,7 +25,6 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import java.io.IOException;
 
 @Slf4j
-@Builder
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     private static final OrRequestMatcher requiresAuthenticationRequestMatcher =

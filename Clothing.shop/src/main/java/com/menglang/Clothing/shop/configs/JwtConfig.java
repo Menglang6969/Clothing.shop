@@ -1,18 +1,11 @@
 package com.menglang.Clothing.shop.configs;
 
-import com.menglang.Clothing.shop.constant.JwtConstant;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
+import org.springframework.context.annotation.Configuration;
 
 @Data
+@Configuration
 public class JwtConfig {
 
     @Value("${jwt.url}")

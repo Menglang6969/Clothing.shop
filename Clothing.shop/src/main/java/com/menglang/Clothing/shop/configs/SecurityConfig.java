@@ -10,35 +10,34 @@ import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableJpaAuditing
+@Order(SecurityProperties.BASIC_AUTH_ORDER)
 public class SecurityConfig extends JwtConfig{
 
     private final CustomUserDetailService userDetailService;
     private final CustomAuthenticationProvider authenticationProvider;
     private final ObjectMapper objectMapper;
     private final JwtService jwtService;
+    @Autowired
     private final JwtConfig jwtConfig;
 
     @Bean
@@ -86,16 +85,14 @@ public class SecurityConfig extends JwtConfig{
                         ),
                         UsernamePasswordAuthenticationFilter.class
                 ).addFilterAfter(
-                      JwtAuthenticationInternalFilter.
-                              builder()
-                              .jwtService(jwtService)
-                              .jwtConfig(jwtConfig)
-                              .objectMapper(objectMapper)
-                              .build(),
-                JwtAuthenticationInternalFilter.class
+                       new JwtAuthenticationInternalFilter(
+                              jwtService,
+                               objectMapper,
+                                jwtConfig),
+                        UsernamePasswordAuthenticationFilter.class
                 );
 
-        return httpSecurity.build();
+        return httpSecurity.getOrBuild();
     }
 
 }
