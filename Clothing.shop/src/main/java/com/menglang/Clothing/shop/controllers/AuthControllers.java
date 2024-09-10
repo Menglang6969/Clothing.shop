@@ -1,5 +1,6 @@
 package com.menglang.Clothing.shop.controllers;
 
+import com.menglang.Clothing.shop.dto.AuthenticationRequest;
 import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
 import com.menglang.Clothing.shop.dto.UserRequest;
 import com.menglang.Clothing.shop.dto.UserResponse;
@@ -28,6 +29,16 @@ public class AuthControllers {
         log.info("Intercept register new user with req: {}",userRequest);
         return ResponseEntity.ok(user.create(userRequest));
     }
+
+    @PostMapping("/accounts/authorization")
+    public ResponseEntity<ResponseErrorTemplate> authenticate(@RequestBody AuthenticationRequest data) throws Exception {
+        log.info("Intercept register new user with req: {}",data);
+        return ResponseEntity.ok(user.authenticate(data));
+    }
+
+
+
+
 
 
 

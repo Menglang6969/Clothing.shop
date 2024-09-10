@@ -55,9 +55,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             IOException,
             ServletException {
 
-        log.info("Start attempt to authentication ");
+      //  log.info("Start attempt to authentication ");
         AuthenticationRequest authenticationRequest=objectMapper.readValue(request.getInputStream(),AuthenticationRequest.class);
-        customUserDetailService.saveUserAttemptAuthentication(authenticationRequest.username());
+     System.out.println("username "+authenticationRequest.username().toString()+" password: "+authenticationRequest.password().toString());
+       // customUserDetailService.saveUserAttemptAuthentication(authenticationRequest.username());
 
         log.info("End Attempt to authentication");
 

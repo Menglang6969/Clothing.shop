@@ -1,32 +1,33 @@
 package com.menglang.Clothing.shop.services.user;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
-import com.menglang.Clothing.shop.dto.UserRequest;
-import com.menglang.Clothing.shop.dto.UserResponse;
+import com.menglang.Clothing.shop.dto.*;
 import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.RoleRepository;
 import com.menglang.Clothing.shop.repositories.UserRepository;
+import com.menglang.Clothing.shop.secuity.jwt.JwtServiceImp;
+import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetail;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
+import lombok.extern.slf4j.Slf4j;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class UserServiceImp implements UserInterface {
-
-    private static final Logger log = LoggerFactory.getLogger(UserServiceImp.class);
+    private static final Logger LOGGER= LoggerFactory.getLogger(UserServiceImp.class);
     @Autowired
     private final UserRepository userRepository;
 
@@ -36,26 +37,49 @@ public class UserServiceImp implements UserInterface {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private final JwtServiceImp jwtService;
+
     @Override
     public ResponseErrorTemplate create(UserRequest data) {
-        Set<RoleEntity> roles = new HashSet<>();
+        Set<RoleEntity> rolesEntities = new HashSet<>();
+        this.userRequestValidate(data);
+
+        List<RoleEntity> roles=roleRepository.findAllByNameIn(data.roles());
+        for (RoleEntity role:roles){
+            rolesEntities.add(role);
+        }
+        UserEntity user = UserEntity.builder().id(0L)
+                .username(data.username())
+                .password(passwordEncoder.encode(data.password()))
+                .email(data.email())
+                .attempt(0)
+                .roles(rolesEntities)
+                .build();
+
+       user.setCreatedAt(new Date());
+
         try {
-            this.userRequestValidate(data);
-
-          //  List<RoleEntity> roles=roleRepository.findAllByNameIn(data.roles());
-            log.info("data role",data.roles());
-            UserEntity user = UserEntity.builder().id(0L)
-                    .username(data.username())
-                    .password(passwordEncoder.encode(data.password()))
-                    .email(data.email())
-                    .attempt(0)
-
-                    .build();
             userRepository.save(user);
-            return this.userMapper(user);
         } catch (Exception e) {
             throw CustomMessageException.builder().message(e.getMessage()).code(String.valueOf(HttpStatus.UNAUTHORIZED.value())).build();
         }
+        CustomUserDetail userDetail=new CustomUserDetail(user.getUsername(),
+                user.getPassword()
+                ,rolesEntities.stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
+
+        var jwtToken = jwtService.generateToken(userDetail);
+        var refreshToken=jwtService.refreshToken(userDetail);
+
+        RegisterResponse authRes=new RegisterResponse(
+                data.username(),
+                data.email(),
+                data.roles(),
+                jwtToken,
+                refreshToken
+        );
+        return new ResponseErrorTemplate("Successful","201",authRes);
+
     }
 
     @Override
@@ -85,7 +109,8 @@ public class UserServiceImp implements UserInterface {
                 user.getRoles().stream().map(role->role.getName()).collect(Collectors.toList()),
                 user.getCreatedAt()
         );
-        return new ResponseErrorTemplate("Successfull","200",userResponse);
+
+        return new ResponseErrorTemplate("Successful","200",userResponse);
     }
 
     private void userRequestValidate(UserRequest userRequest) {
@@ -98,13 +123,18 @@ public class UserServiceImp implements UserInterface {
             throw new CustomMessageException("User already existed", String.valueOf(HttpStatus.BAD_REQUEST));
         }
 
-//        List<String> roles=roleRepository.findAll().stream().map(RoleEntity::getName).toList();
-//        for (var role:roles){
-//            if (!roles.contains(role)){
-//                throw new CustomMessageException("Role is invalid request",
-//                        String.valueOf(HttpStatus.BAD_REQUEST)
-//                        );
-//            }
-//        }
+        List<String> roles=roleRepository.findAll().stream().map(RoleEntity::getName).toList();
+        for (var role:roles){
+            if (!roles.contains(role)){
+                throw new CustomMessageException("Role is invalid request",
+                        String.valueOf(HttpStatus.BAD_REQUEST)
+                        );
+            }
+        }
+    }
+
+    public ResponseErrorTemplate authenticate(AuthenticationRequest data){
+
+        return new ResponseErrorTemplate("Success","200",data);
     }
 }

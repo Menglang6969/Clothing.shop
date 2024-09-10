@@ -18,14 +18,14 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseAuditEntity <T extends Serializable> extends BaseEntity<T> {
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_date",nullable = false,updatable = false)
+    @Column(name = "created_at",nullable = false,updatable = false)
     @CreatedDate
     private Date createdAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "update_date",insertable = false)
+    @Column(name = "updated_at",insertable = false)
     @LastModifiedDate
-    private Date updateAt;
+    private Date updatedAt;
 
     @Column(name = "created_by",length = 40,updatable=false)
     @CreatedBy

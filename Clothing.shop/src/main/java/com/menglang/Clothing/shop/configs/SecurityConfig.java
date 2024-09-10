@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,13 +31,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableJpaAuditing
-@Order(SecurityProperties.BASIC_AUTH_ORDER)
 public class SecurityConfig extends JwtConfig{
 
     private final CustomUserDetailService userDetailService;
     private final CustomAuthenticationProvider authenticationProvider;
     private final ObjectMapper objectMapper;
     private final JwtService jwtService;
+
     @Autowired
     private final JwtConfig jwtConfig;
 
@@ -57,10 +58,14 @@ public class SecurityConfig extends JwtConfig{
         AuthenticationManager authenticationManager=managerBuilder.build();
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                .headers(httpSecurityHeadersConfigurer -> {
+                    httpSecurityHeadersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable);
+                })
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                     auth->auth.requestMatchers("/api/v1/public/accounts/**").permitAll()
-                            .requestMatchers("/api/console-h2/**").permitAll()
+
+                            .requestMatchers("/h2-console/**").permitAll()
                             .requestMatchers("/api/v1/user/**").hasAnyAuthority("USER","ADMIN")
                             .requestMatchers("/api/v1/admin/**").hasAnyAuthority("ADMIN")
                             .anyRequest().authenticated()

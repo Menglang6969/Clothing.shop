@@ -12,6 +12,6 @@ public record UserResponse(
         String email,
         @JsonProperty("full_name") String fullName,
         List<String> roles,
-        @JsonProperty("crated_at") Date createdAt
+        @JsonProperty("created_at") Date createdAt
         ) {
 }

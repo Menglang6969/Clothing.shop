@@ -3,10 +3,10 @@ package com.menglang.Clothing.shop.secuity.userDetails;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.UserRepository;
-import io.jsonwebtoken.lang.Collections;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,17 +14,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
-    private UserRepository userRepository;
+
+    @Autowired
+   private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -55,16 +55,18 @@ public class CustomUserDetailService implements UserDetailsService {
     }
 
     public void saveUserAttemptAuthentication(String username){
-        Optional<UserEntity> user= Optional.ofNullable(userRepository.findUserByUsername(username).orElseThrow(() -> new CustomMessageException("User Not Found", String.valueOf(HttpStatus.UNAUTHORIZED.value()))));
-
-        int attempt=user.get().getAttempt()+1;
-        user.get().setAttempt(attempt);
-        user.get().setUpdateAt(new Date());
-        if(user.get().getAttempt()>3){
-            log.error("User {} update status blocked",username);
-
-        }
-        userRepository.save(user.get());
+        System.out.println(" username save attempt: "+username);
+        Optional<UserEntity> user= this.userRepository.findUserByUsername(username);
+        log.info("user data: ",user);
+       if(user.isPresent()){
+           int attempt=user.get().getAttempt()+1;
+           user.get().setAttempt(attempt);
+           user.get().setUpdatedAt(new Date());
+           if(user.get().getAttempt()>3){
+               log.error("User {} update status blocked",username);
+           }
+           userRepository.save(user.get());
+       }
     }
 
     public void updateAttempt (String username){
@@ -73,7 +75,7 @@ public class CustomUserDetailService implements UserDetailsService {
                         new CustomMessageException("User Not Found", String.valueOf(HttpStatus.UNAUTHORIZED.value()))));
 
         user.get().setAttempt(0);
-        user.get().setUpdateAt(new Date());
+        user.get().setUpdatedAt(new Date());
         userRepository.save(user.get());
     }
 
