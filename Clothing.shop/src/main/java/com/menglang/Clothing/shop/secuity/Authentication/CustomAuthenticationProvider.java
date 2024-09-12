@@ -32,7 +32,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         Optional<UserEntity> user;
 
         try {
-            user = userRepository.findUserByUsername(username);
+            user = userRepository.findByUsername(username);
 
         } catch (Exception e) {
             log.error("user not found ", e.getLocalizedMessage());

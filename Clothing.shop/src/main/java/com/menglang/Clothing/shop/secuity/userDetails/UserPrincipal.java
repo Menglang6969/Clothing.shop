@@ -1,19 +1,21 @@
 package com.menglang.Clothing.shop.secuity.userDetails;
 
-import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.entity.UserEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomUserDetail implements UserDetails {
+@Builder
+public class UserPrincipal implements UserDetails {
 
+    //private UserEntity user;
     private String username;
     private String password;
     private List<GrantedAuthority> authorities;
@@ -25,12 +27,12 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return username;
     }
 
     @Override

@@ -81,15 +81,16 @@ public class SecurityConfig extends JwtConfig{
                                         response.sendError(HttpServletResponse.SC_UNAUTHORIZED))))
                                 .accessDeniedHandler(new CustomAccessDeniedException())
                 )
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(
-                                authenticationManager,
-                                jwtService,
-                                objectMapper,
-                                userDetailService
-                        ),
-                        UsernamePasswordAuthenticationFilter.class
-                ).addFilterAfter(
+//                .addFilterBefore(
+//                        new JwtAuthenticationFilter(
+//                                authenticationManager,
+//                                jwtService,
+//                                objectMapper,
+//                                userDetailService
+//                        ),
+//                        UsernamePasswordAuthenticationFilter.class
+//                )
+                .addFilterAfter(
                        new JwtAuthenticationInternalFilter(
                               jwtService,
                                objectMapper,

@@ -3,7 +3,6 @@ package com.menglang.Clothing.shop.secuity.userDetails;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.UserRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +34,8 @@ public class CustomUserDetailService implements UserDetailsService {
         }
     }
 
-    public CustomUserDetail customUserDetail(String username) throws CustomMessageException{
-        Optional<UserEntity> user= userRepository.findUserByUsername(username);
+    public UserPrincipal customUserDetail(String username) throws CustomMessageException{
+        Optional<UserEntity> user= userRepository.findByUsername(username);
         if(user.isEmpty()){
             log.error("user not found");
             throw CustomMessageException.builder()
@@ -45,7 +44,7 @@ public class CustomUserDetailService implements UserDetailsService {
                     .build();
         }
 
-        return new CustomUserDetail(
+        return new UserPrincipal(
                 user.get().getUsername(),
                 user.get().getPassword(),
                 user.get().getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName()))
@@ -56,7 +55,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public void saveUserAttemptAuthentication(String username){
         System.out.println(" username save attempt: "+username);
-        Optional<UserEntity> user= this.userRepository.findUserByUsername(username);
+        Optional<UserEntity> user= this.userRepository.findByUsername(username);
         log.info("user data: ",user);
        if(user.isPresent()){
            int attempt=user.get().getAttempt()+1;
@@ -70,7 +69,7 @@ public class CustomUserDetailService implements UserDetailsService {
     }
 
     public void updateAttempt (String username){
-        Optional<UserEntity> user=Optional.ofNullable(userRepository.findUserByUsername(username)
+        Optional<UserEntity> user=Optional.ofNullable(userRepository.findByUsername(username)
                 .orElseThrow(() ->
                         new CustomMessageException("User Not Found", String.valueOf(HttpStatus.UNAUTHORIZED.value()))));
 

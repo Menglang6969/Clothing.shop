@@ -7,7 +7,7 @@ import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.RoleRepository;
 import com.menglang.Clothing.shop.repositories.UserRepository;
 import com.menglang.Clothing.shop.secuity.jwt.JwtServiceImp;
-import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetail;
+import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,7 +64,7 @@ public class UserServiceImp implements UserInterface {
         } catch (Exception e) {
             throw CustomMessageException.builder().message(e.getMessage()).code(String.valueOf(HttpStatus.UNAUTHORIZED.value())).build();
         }
-        CustomUserDetail userDetail=new CustomUserDetail(user.getUsername(),
+        UserPrincipal userDetail=new UserPrincipal(user.getUsername(),
                 user.getPassword()
                 ,rolesEntities.stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
 
@@ -92,7 +92,7 @@ public class UserServiceImp implements UserInterface {
 
     @Override
     public ResponseErrorTemplate findByUsername(String username) {
-        Optional<UserEntity> user=userRepository.findUserByUsername(username);
+        Optional<UserEntity> user=userRepository.findByUsername(username);
         if(user.isPresent()) {
             return this.userMapper(user.get());
         }
@@ -118,7 +118,7 @@ public class UserServiceImp implements UserInterface {
             throw new CustomMessageException("Password can't be blank or null", String.valueOf(HttpStatus.BAD_REQUEST));
         }
 
-        Optional<UserEntity> user = userRepository.findUserByUsername(userRequest.username());
+        Optional<UserEntity> user = userRepository.findByUsername(userRequest.username());
         if (user.isPresent()) {
             throw new CustomMessageException("User already existed", String.valueOf(HttpStatus.BAD_REQUEST));
         }
