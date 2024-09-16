@@ -10,16 +10,19 @@ import com.menglang.Clothing.shop.secuity.jwt.JwtServiceImp;
 import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,15 +43,15 @@ public class UserServiceImp implements UserInterface {
     @Autowired
     private final JwtServiceImp jwtService;
 
+    @Autowired
+    private final AuthenticationManager authenticationManager;
+
     @Override
     public ResponseErrorTemplate create(UserRequest data) {
-        Set<RoleEntity> rolesEntities = new HashSet<>();
         this.userRequestValidate(data);
 
         List<RoleEntity> roles=roleRepository.findAllByNameIn(data.roles());
-        for (RoleEntity role:roles){
-            rolesEntities.add(role);
-        }
+        Set<RoleEntity> rolesEntities = new HashSet<>(roles);
         UserEntity user = UserEntity.builder().id(0L)
                 .username(data.username())
                 .password(passwordEncoder.encode(data.password()))
@@ -64,7 +67,8 @@ public class UserServiceImp implements UserInterface {
         } catch (Exception e) {
             throw CustomMessageException.builder().message(e.getMessage()).code(String.valueOf(HttpStatus.UNAUTHORIZED.value())).build();
         }
-        UserPrincipal userDetail=new UserPrincipal(user.getUsername(),
+        UserPrincipal userDetail=new UserPrincipal(
+                user.getUsername(),
                 user.getPassword()
                 ,rolesEntities.stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
 
@@ -75,6 +79,7 @@ public class UserServiceImp implements UserInterface {
                 data.username(),
                 data.email(),
                 data.roles(),
+                data.phone(),
                 jwtToken,
                 refreshToken
         );
@@ -106,7 +111,7 @@ public class UserServiceImp implements UserInterface {
                 user.getPassword(),
                 user.getEmail(),
                 user.getUsername(),
-                user.getRoles().stream().map(role->role.getName()).collect(Collectors.toList()),
+                user.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toList()),
                 user.getCreatedAt()
         );
 
@@ -135,6 +140,41 @@ public class UserServiceImp implements UserInterface {
 
     public ResponseErrorTemplate authenticate(AuthenticationRequest data){
 
-        return new ResponseErrorTemplate("Success","200",data);
+        log.info(" authentication signIn Res: {}", data.username());
+       try{
+           Authentication authentication = authenticationManager.authenticate(
+                   new UsernamePasswordAuthenticationToken(
+                           data.username(),
+                           data.password()
+                   )
+           );
+           log.info(" authentication signIn Res: {}",authentication.isAuthenticated());
+           var user = userRepository.findByUsername(data.username())
+                   .orElseThrow(() -> new UsernameNotFoundException("Invalid credential."));
+
+           UserPrincipal userDetail=new UserPrincipal(
+                   user.getUsername(),
+                   user.getPassword()
+                   ,user.getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
+
+           var jwtToken = jwtService.generateToken(userDetail);
+           var refreshToken=jwtService.refreshToken(userDetail);
+
+           RegisterResponse authRes=new RegisterResponse(
+                   data.username(),
+                   user.getEmail(),
+                   user.getRoles().stream().map(RoleEntity::getName).toList(),
+                   user.getPhone(),
+                   jwtToken,
+                   refreshToken
+           );
+
+           return new ResponseErrorTemplate("Success","200",authRes);
+       }catch (Exception e){
+           return new ResponseErrorTemplate(e.getLocalizedMessage(),"400",e.getMessage());
+       }
+
+
+
     }
 }

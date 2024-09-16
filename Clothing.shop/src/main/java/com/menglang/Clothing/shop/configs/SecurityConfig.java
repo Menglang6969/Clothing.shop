@@ -16,12 +16,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -41,10 +44,19 @@ public class SecurityConfig extends JwtConfig{
     @Autowired
     private final JwtConfig jwtConfig;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+
+
+//    @Bean
+//    public DaoAuthenticationProvider authenticationProvider(UserDetailsService myUserService) {
+//        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+//        auth.setUserDetailsService(myUserService);
+//        auth.setPasswordEncoder(passwordEncoder());
+//        return auth;
+//    }
 
     @Autowired
     public void userAuthenticationGlobalConfig(AuthenticationManagerBuilder authenticationManagerBuilder){
@@ -53,9 +65,9 @@ public class SecurityConfig extends JwtConfig{
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
-        AuthenticationManagerBuilder managerBuilder=httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
-        managerBuilder.userDetailsService(userDetailService).passwordEncoder(passwordEncoder());
-        AuthenticationManager authenticationManager=managerBuilder.build();
+//        AuthenticationManagerBuilder managerBuilder=httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
+//        managerBuilder.userDetailsService(userDetailService).passwordEncoder(passwordEncoder());
+//        AuthenticationManager authenticationManager=managerBuilder.build();
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .headers(httpSecurityHeadersConfigurer -> {
@@ -70,7 +82,7 @@ public class SecurityConfig extends JwtConfig{
                             .requestMatchers("/api/v1/admin/**").hasAnyAuthority("ADMIN")
                             .anyRequest().authenticated()
                 )
-                .authenticationManager(authenticationManager)
+                .authenticationProvider(authenticationProvider)
                 .sessionManagement(
                         session->session.
                                 sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -94,7 +106,9 @@ public class SecurityConfig extends JwtConfig{
                        new JwtAuthenticationInternalFilter(
                               jwtService,
                                objectMapper,
-                                jwtConfig),
+                                jwtConfig,
+                               userDetailService
+                               ),
                         UsernamePasswordAuthenticationFilter.class
                 );
 

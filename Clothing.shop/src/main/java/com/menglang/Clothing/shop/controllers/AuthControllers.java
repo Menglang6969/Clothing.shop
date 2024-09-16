@@ -30,7 +30,7 @@ public class AuthControllers {
         return ResponseEntity.ok(user.create(userRequest));
     }
 
-    @PostMapping("/accounts/authorization")
+    @PostMapping("/accounts/login")
     public ResponseEntity<ResponseErrorTemplate> authenticate(@RequestBody AuthenticationRequest data) throws Exception {
         log.info("Intercept register new user with req: {}",data);
         return ResponseEntity.ok(user.authenticate(data));

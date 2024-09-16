@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.menglang.Clothing.shop.configs.JwtConfig;
 
 import com.menglang.Clothing.shop.exceptions.CustomMessageExceptionUtils;
+import com.menglang.Clothing.shop.repositories.UserRepository;
 import com.menglang.Clothing.shop.secuity.jwt.JwtService;
+import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
@@ -32,6 +36,7 @@ public class JwtAuthenticationInternalFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     private final JwtConfig jwtConfig;
+    private final CustomUserDetailService userDetailService;
 
     @Override
     protected void doFilterInternal(
@@ -49,17 +54,17 @@ public class JwtAuthenticationInternalFilter extends OncePerRequestFilter {
                 if(jwtService.isValidToken(accessToken)){
                     Claims claims=jwtService.extractClaims(accessToken);
                     var username=claims.getSubject();
-
-                    List<String> authorities=claims.get("authorities",List.class);
-
+                    UserDetails userDetails=this.userDetailService.loadUserByUsername(username);
                     if(username!=null){
                         UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(
-                                username,
+                                userDetails,
                                 null,
-                                authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                                userDetails.getAuthorities()
                         );
-
-                        log.info(" authentication Token: ",authenticationToken);
+                        authenticationToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+                        log.info(" authentication Token:{} ",authenticationToken);
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
                     }
