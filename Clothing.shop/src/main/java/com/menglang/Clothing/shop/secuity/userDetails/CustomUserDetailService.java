@@ -37,9 +37,8 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserPrincipal customUserDetail(String username) throws CustomMessageException{
         Optional<UserEntity> user= userRepository.findByUsername(username);
         if(user.isEmpty()){
-            log.error("user not found");
             throw CustomMessageException.builder()
-                    .message("user not found")
+                    .message("User not found")
                     .code(String.valueOf(HttpStatus.NOT_FOUND.value()))
                     .build();
         }
@@ -56,7 +55,7 @@ public class CustomUserDetailService implements UserDetailsService {
     public void saveUserAttemptAuthentication(String username){
         System.out.println(" username save attempt: "+username);
         Optional<UserEntity> user= this.userRepository.findByUsername(username);
-        log.info("user data: ",user);
+
        if(user.isPresent()){
            int attempt=user.get().getAttempt()+1;
            user.get().setAttempt(attempt);
