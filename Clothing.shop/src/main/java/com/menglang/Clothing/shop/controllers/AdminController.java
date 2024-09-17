@@ -21,7 +21,7 @@ public class AdminController {
     @GetMapping("/accounts")
     public ResponseEntity<Object> index(Principal principal) throws Exception {
         var username=principal.getName();
-        log.info("admin : username {} request get user data",username);
-        return ResponseEntity.ok(userService.findUserByUsername(username));
+       System.out.println("data username: "+username);
+        return ResponseEntity.ok(userService.findByUsername(username));
     }
 }

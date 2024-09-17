@@ -5,13 +5,12 @@ import com.menglang.Clothing.shop.dto.AuthenticationRequest;
 import com.menglang.Clothing.shop.dto.AuthenticationResponse;
 import com.menglang.Clothing.shop.exceptions.CustomMessageExceptionUtils;
 import com.menglang.Clothing.shop.secuity.jwt.JwtService;
-import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetail;
+import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
 import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +24,6 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import java.io.IOException;
 
 @Slf4j
-@Builder
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
     private static final OrRequestMatcher requiresAuthenticationRequestMatcher =
@@ -56,9 +54,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
             IOException,
             ServletException {
 
-        log.info("Start attempt to authentication ");
+      //  log.info("Start attempt to authentication ");
         AuthenticationRequest authenticationRequest=objectMapper.readValue(request.getInputStream(),AuthenticationRequest.class);
-        customUserDetailService.saveUserAttemptAuthentication(authenticationRequest.username());
+     System.out.println("username "+authenticationRequest.username().toString()+" password: "+authenticationRequest.password().toString());
+       // customUserDetailService.saveUserAttemptAuthentication(authenticationRequest.username());
 
         log.info("End Attempt to authentication");
 
@@ -74,9 +73,9 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         super.successfulAuthentication(request, response, chain, authResult);
 
-        CustomUserDetail customUserDetail=(CustomUserDetail) authResult.getDetails();
-        var accessToken=jwtService.generateToken(customUserDetail);
-        var refreshToken=jwtService.refreshToken(customUserDetail);
+        UserPrincipal userPrincipal =(UserPrincipal) authResult.getDetails();
+        var accessToken=jwtService.generateToken(userPrincipal);
+        var refreshToken=jwtService.refreshToken(userPrincipal);
 
         AuthenticationResponse authenticationResponse=new AuthenticationResponse(
                 accessToken,

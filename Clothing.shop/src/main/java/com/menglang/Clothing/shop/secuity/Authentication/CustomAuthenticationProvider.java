@@ -4,6 +4,7 @@ import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.UserRepository;
+import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.*;
 
@@ -22,37 +26,36 @@ import java.util.*;
 @Slf4j
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
-    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailService userDetailService;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        log.info("authentication income: ", authentication);
+        log.info("authentication income: {} ", authentication);
         final String username = authentication.getName();
         final String password = authentication.getCredentials().toString();
-        Optional<UserEntity> user;
+        UserDetails userDetails;
 
-        try {
-            user = userRepository.findUserByUsername(username);
 
-        } catch (Exception e) {
-            log.error("user not found ", e.getLocalizedMessage());
-            throw new CustomMessageException("User not found", String.valueOf(HttpStatus.UNAUTHORIZED.value()));
-        }
+            userDetails = userDetailService.loadUserByUsername(username);
+            if(userDetails==null){
+                throw new UsernameNotFoundException("Invalid credentials");
+            }
 
-        if (user.isEmpty()) {
-            throw new CustomMessageException("User not found.", String.valueOf(HttpStatus.UNAUTHORIZED.value()));
-        }
+            if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+                throw new UsernameNotFoundException("Invalid credentials");
+            }
 
-        final List<GrantedAuthority> authorities = grantedAuthorities(user.get().getRoles().stream().toList());
-        final Authentication auths = new UsernamePasswordAuthenticationToken(username, password, authorities);
 
-        log.info("Authentications out come {}", auths);
-        return auths;
+       return new UsernamePasswordAuthenticationToken(
+                username,
+                password,
+                userDetails.getAuthorities());
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return false;
+        return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
     private List<GrantedAuthority> grantedAuthorities(List<RoleEntity> roles) {

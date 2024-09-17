@@ -2,7 +2,7 @@ package com.menglang.Clothing.shop.secuity.jwt;
 
 import com.menglang.Clothing.shop.configs.JwtConfig;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
-import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetail;
+import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
 import com.menglang.Clothing.shop.secuity.userDetails.CustomUserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -55,17 +55,19 @@ public class JwtServiceImp extends JwtConfig implements JwtService {
         return Keys.hmacShaKeyFor(keys);
     }
 
+
+
     @Override
-    public String generateToken(CustomUserDetail customUserDetail) {
+    public String generateToken(UserPrincipal userPrincipal) {
         List<String> roles=new ArrayList<>();
-        for (GrantedAuthority authority : customUserDetail.getAuthorities()) {
+        for (GrantedAuthority authority : userPrincipal.getAuthorities()) {
             roles.add(authority.getAuthority());
         }
 
         Instant currentTime=Instant.now();
         return Jwts.builder()
-                .subject(customUserDetail.getUsername())
-                .claim("authorities",customUserDetail
+                .subject(userPrincipal.getUsername())
+                .claim("authorities", userPrincipal
                         .getAuthorities()
                         .stream()
                         .map(GrantedAuthority::getAuthority)
@@ -78,12 +80,12 @@ public class JwtServiceImp extends JwtConfig implements JwtService {
     }
 
     @Override
-    public String refreshToken(CustomUserDetail customUserDetail) {
+    public String refreshToken(UserPrincipal userPrincipal) {
         Instant currentTime=Instant.now();
 
         return Jwts
                 .builder()
-                .subject(customUserDetail.getUsername())
+                .subject(userPrincipal.getUsername())
                 .issuedAt(Date.from(currentTime))
                 .expiration(Date.from(currentTime.plusSeconds(Long.parseLong(this.getExpire()))))
                 .signWith(getSignInKey())
