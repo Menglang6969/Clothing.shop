@@ -56,6 +56,7 @@ public class UserServiceImp implements UserInterface {
                 .username(data.username())
                 .password(passwordEncoder.encode(data.password()))
                 .email(data.email())
+                .phone(data.phone())
                 .attempt(0)
                 .roles(rolesEntities)
                 .build();
