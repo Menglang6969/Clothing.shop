@@ -37,3 +37,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+# Ignore application.yml and build.gradle
+application.yml
+build.gradle
+
+# Ignore compiler.xml and module.xml
+compiler.xml
+module.xml
