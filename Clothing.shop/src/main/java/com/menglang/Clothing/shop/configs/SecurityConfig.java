@@ -76,8 +76,8 @@ public class SecurityConfig extends JwtConfig{
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                     auth->auth.requestMatchers("/api/v1/public/accounts/**").permitAll()
-
                             .requestMatchers("/h2-console/**").permitAll()
+                            .requestMatchers("/swagger-ui/**").permitAll()
                             .requestMatchers("/api/v1/user/**").hasAnyAuthority("USER","ADMIN")
                             .requestMatchers("/api/v1/admin/**").hasAnyAuthority("ADMIN")
                             .anyRequest().authenticated()
