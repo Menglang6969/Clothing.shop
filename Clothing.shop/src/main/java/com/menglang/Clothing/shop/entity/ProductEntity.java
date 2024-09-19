@@ -39,6 +39,9 @@ public class ProductEntity extends BaseAuditEntity<Long> {
     @Column(length = 100,unique=true)
     private String description;
 
+    @Column(length = 10)
+    private Integer discountedPrice;
+
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RatingEntity> ratings = new HashSet<>();
 
