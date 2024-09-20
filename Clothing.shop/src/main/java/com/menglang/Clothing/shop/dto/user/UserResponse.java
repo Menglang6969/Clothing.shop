@@ -1,8 +1,7 @@
-package com.menglang.Clothing.shop.dto;
+package com.menglang.Clothing.shop.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 

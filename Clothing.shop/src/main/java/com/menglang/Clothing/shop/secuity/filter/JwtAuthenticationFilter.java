@@ -1,8 +1,8 @@
 package com.menglang.Clothing.shop.secuity.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.menglang.Clothing.shop.dto.AuthenticationRequest;
-import com.menglang.Clothing.shop.dto.AuthenticationResponse;
+import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
+import com.menglang.Clothing.shop.dto.auth.AuthenticationResponse;
 import com.menglang.Clothing.shop.exceptions.CustomMessageExceptionUtils;
 import com.menglang.Clothing.shop.secuity.jwt.JwtService;
 import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;

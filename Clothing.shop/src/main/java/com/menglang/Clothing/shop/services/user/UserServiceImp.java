@@ -1,6 +1,10 @@
 package com.menglang.Clothing.shop.services.user;
 
 import com.menglang.Clothing.shop.dto.*;
+import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
+import com.menglang.Clothing.shop.dto.auth.RegisterResponse;
+import com.menglang.Clothing.shop.dto.user.UserRequest;
+import com.menglang.Clothing.shop.dto.user.UserResponse;
 import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
