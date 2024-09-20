@@ -17,7 +17,9 @@ public class ProductRequest {
 
     private String title;
     private String description;
-    private int price;
+    private double price;
+    private String brand;
+
 
     private  int discountPrice;
     private int discountPercentage;

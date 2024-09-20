@@ -89,6 +89,47 @@ public class UserServiceImp implements UserInterface {
     }
 
     @Override
+    public ResponseErrorTemplate authenticate(AuthenticationRequest data){
+
+        log.info(" authentication signIn Res: {}", data.username());
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            data.username(),
+                            data.password()
+                    )
+            );
+            log.info(" authentication signIn Res: {}",authentication.isAuthenticated());
+            var user = userRepository.findByUsername(data.username())
+                    .orElseThrow(() -> new UsernameNotFoundException("Invalid credential."));
+
+            UserPrincipal userDetail=new UserPrincipal(
+                    user.getUsername(),
+                    user.getPassword()
+                    ,user.getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
+
+            var jwtToken = jwtService.generateToken(userDetail);
+            var refreshToken=jwtService.refreshToken(userDetail);
+
+            RegisterResponse authRes=new RegisterResponse(
+                    data.username(),
+                    user.getEmail(),
+                    user.getRoles().stream().map(RoleEntity::getName).toList(),
+                    user.getPhone(),
+                    jwtToken,
+                    refreshToken
+            );
+
+            return new ResponseErrorTemplate("Success","200",authRes);
+        }catch (Exception e){
+            return new ResponseErrorTemplate(e.getLocalizedMessage(),"400",e.getMessage());
+        }
+
+
+
+    }
+
+    @Override
     public ResponseErrorTemplate findById(Long id) {
         Optional<UserEntity> user = userRepository.findById(id);
         var msg="User not found";
@@ -139,43 +180,4 @@ public class UserServiceImp implements UserInterface {
         }
     }
 
-    public ResponseErrorTemplate authenticate(AuthenticationRequest data){
-
-        log.info(" authentication signIn Res: {}", data.username());
-       try{
-           Authentication authentication = authenticationManager.authenticate(
-                   new UsernamePasswordAuthenticationToken(
-                           data.username(),
-                           data.password()
-                   )
-           );
-           log.info(" authentication signIn Res: {}",authentication.isAuthenticated());
-           var user = userRepository.findByUsername(data.username())
-                   .orElseThrow(() -> new UsernameNotFoundException("Invalid credential."));
-
-           UserPrincipal userDetail=new UserPrincipal(
-                   user.getUsername(),
-                   user.getPassword()
-                   ,user.getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
-
-           var jwtToken = jwtService.generateToken(userDetail);
-           var refreshToken=jwtService.refreshToken(userDetail);
-
-           RegisterResponse authRes=new RegisterResponse(
-                   data.username(),
-                   user.getEmail(),
-                   user.getRoles().stream().map(RoleEntity::getName).toList(),
-                   user.getPhone(),
-                   jwtToken,
-                   refreshToken
-           );
-
-           return new ResponseErrorTemplate("Success","200",authRes);
-       }catch (Exception e){
-           return new ResponseErrorTemplate(e.getLocalizedMessage(),"400",e.getMessage());
-       }
-
-
-
-    }
 }
