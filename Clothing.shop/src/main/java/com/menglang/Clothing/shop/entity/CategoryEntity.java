@@ -37,6 +37,7 @@ public class CategoryEntity extends BaseAuditEntity<Long> {
     private String description;
 
     @OneToMany(mappedBy = "category")
+    @Builder.Default
     private Set<ProductEntity> product=new HashSet<>();
 
 }

@@ -15,7 +15,7 @@ public interface ProductInterface {
      ResponseErrorTemplate updateProduct(Long id, ProductEntity product) throws Exception;
      ResponseErrorTemplate deleteProduct(Long id) throws Exception;
      List<ProductEntity> getProductsByCategory(String category) throws Exception;
-
+    List<ProductEntity> searchProduct(String query) throws Exception;
      Page<ProductEntity> getAllProducts(
       String category,
       List<String> colors,

@@ -17,11 +17,10 @@ import java.util.Set;
 @Table(name = "order_tbl")
 public class OrderEntity extends BaseAuditEntity<Long> {
 
-    @Column(name = "shipping_address")
-    @OneToOne
-    AddressEntity shippingAddress;
+
     @Column(name = "order_id")
     private String orderId;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "delivered_at")
     private Date deliveredAt;
@@ -35,7 +34,7 @@ public class OrderEntity extends BaseAuditEntity<Long> {
 
     private Integer discount;
 
-    @Column(name = "order")
+    @Column(name = "order_status")
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
@@ -47,9 +46,14 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     @ManyToOne()
     private CustomerEntity customer;
 
-    @Embedded
-    private PaymentDetails paymentDetails;
+//    @Embedded
+//    private PaymentDetails paymentDetails;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItemsEntity> orderItems;
+
+
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,fetch = FetchType.LAZY,optional = false)
+    private AddressEntity address;
 }

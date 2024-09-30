@@ -23,6 +23,7 @@ public class CartEntity extends BaseAuditEntity<Long> {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @Column(name = "cart_items")
+    @Builder.Default
     private Set<CartItemEntity> cartItems = new HashSet<>();
 
     @Column(name = "total_price")

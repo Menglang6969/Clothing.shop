@@ -36,6 +36,7 @@ public class ProductEntity extends BaseAuditEntity<Long> {
     @CollectionTable(name = "size",
             joinColumns = @JoinColumn(name = "product_id")
     )
+    @Builder.Default
     private Set<Size> sizes=new HashSet<>();
 
     @Column(unique = true, length = 150)
@@ -54,6 +55,7 @@ public class ProductEntity extends BaseAuditEntity<Long> {
 
 
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<RatingEntity> ratings = new HashSet<>();
 
 

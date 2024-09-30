@@ -22,6 +22,7 @@ import java.io.Serializable;
 public class CustomAccessDeniedException implements AccessDeniedHandler, Serializable {
 
     private static final long serialVersionUID = 1L;
+    @Builder.Default
     private ObjectMapper mapper = new ObjectMapper();
 
 

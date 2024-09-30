@@ -9,19 +9,12 @@ import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.CategoryRepository;
 import com.menglang.Clothing.shop.repositories.ProductRepository;
 import com.menglang.Clothing.shop.services.user.UserServiceImp;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -151,6 +144,11 @@ public class ProductServiceImpl implements ProductInterface {
 
     @Override
     public List<ProductEntity> getProductsByCategory(String category) {
+        return List.of();
+    }
+
+    @Override
+    public List<ProductEntity> searchProduct(String query) throws Exception {
         return List.of();
     }
 

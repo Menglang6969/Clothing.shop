@@ -4,6 +4,7 @@ import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
 import com.menglang.Clothing.shop.entity.AddressEntity;
 import com.menglang.Clothing.shop.entity.OrderEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
+import com.menglang.Clothing.shop.repositories.CartRepository;
 import com.menglang.Clothing.shop.services.product.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService{
 
-
     @Autowired
     private final ProductServiceImpl productService;
+
+    @Autowired
+    private final CartRepository cartRepository;
+
+
 
     @Override
     public OrderEntity findOrderById(Long id) throws Exception {
