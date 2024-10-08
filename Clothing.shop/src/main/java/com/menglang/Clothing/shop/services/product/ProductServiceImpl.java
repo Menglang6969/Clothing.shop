@@ -33,11 +33,12 @@ public class ProductServiceImpl implements ProductInterface {
 
     @Override
     public ResponseErrorTemplate create(ProductRequest product) {
-        CategoryEntity category = findOrCreateCategory(
-                product.getTopLevelCategory(),
-                product.getSecondLevelCategory(),
-                product.getThirdLevelCategory());
+//        CategoryEntity category = findOrCreateCategory(
+//                product.getTopLevelCategory(),
+//                product.getSecondLevelCategory(),
+//                product.getThirdLevelCategory());
 
+        CategoryEntity category=categoryRepository.findById(product.getCategoryId()).orElseThrow(()->new CustomMessageException("Category does not exist","400"));
         ProductEntity product_data = ProductEntity.builder()
                 .title(product.getTitle())
                 .color(product.getColor())
@@ -61,9 +62,9 @@ public class ProductServiceImpl implements ProductInterface {
             throw new CustomMessageException(e.getMessage(), "500");
         }
     }
-
-    private CategoryEntity findOrCreateCategory(String topCategory, String secondCategory, String thirdCategory) {
-
+//
+//    private CategoryEntity findOrCreateCategory(String topCategory, String secondCategory, String thirdCategory) {
+//
 //        CategoryEntity topLevel = categoryRepository.findByName(topCategory);
 //        if (topLevel == null) {
 //            CategoryEntity categoryObj = CategoryEntity.builder()
@@ -93,8 +94,8 @@ public class ProductServiceImpl implements ProductInterface {
 //            thirdLevel = categoryRepository.save(categoryObj);
 //        }
 //        return thirdLevel;
-        return null;
-    }
+//
+//    }
 
     @Override
     public List<ProductEntity> getProducts() {

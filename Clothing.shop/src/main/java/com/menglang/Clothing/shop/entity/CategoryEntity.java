@@ -19,8 +19,6 @@ import java.util.Set;
 @Table(name = "category_tbl")
 public class CategoryEntity extends BaseAuditEntity<Long> {
 
-
-
     @Column(unique=true,length=30)
     private String name;
 
@@ -29,7 +27,6 @@ public class CategoryEntity extends BaseAuditEntity<Long> {
             name = "parent_category_id"
     )
     private CategoryEntity parent;
-
 
     private int level;
 

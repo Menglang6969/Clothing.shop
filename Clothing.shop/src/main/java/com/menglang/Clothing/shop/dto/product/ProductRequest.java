@@ -19,7 +19,7 @@ public class ProductRequest {
     private String description;
     private double price;
     private String brand;
-
+    private Long categoryId;
 
     private  int discountPrice;
     private int discountPercentage;
