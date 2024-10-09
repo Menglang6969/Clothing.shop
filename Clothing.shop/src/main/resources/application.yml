@@ -23,7 +23,7 @@ spring:
     show-sql: true
     open-in-view: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   h2:
     console:
       enabled: true
@@ -46,5 +46,5 @@ jwt:
   url: '/authorization'
   header: 'Authorization'
   prefix: 'Bearer '
-  expire: 3600
+  expire: 36000
   secrete: '42742c99f7c62f94a4fabc5940800b5a98d0d3b30e2348bf0aa87683d6383698'

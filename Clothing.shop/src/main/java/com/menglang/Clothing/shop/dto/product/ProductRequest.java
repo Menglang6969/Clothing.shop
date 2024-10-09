@@ -1,36 +1,34 @@
 package com.menglang.Clothing.shop.dto.product;
 
 
-import com.menglang.Clothing.shop.entity.CategoryEntity;
-import com.menglang.Clothing.shop.entity.embedded.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.menglang.Clothing.shop.entity.ColorEntity;
+import com.menglang.Clothing.shop.entity.enums.Sizes;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-@Setter
-@Getter
-@AllArgsConstructor
-public class ProductRequest {
 
-    private String title;
-    private String description;
-    private double price;
-    private String brand;
-    private Long categoryId;
+public record ProductRequest(
+        String title,
+        String description,
+        double price,
+        String brand,
+        Long category,
+        @JsonProperty("discount_price")
+        int discountPrice,
+        @JsonProperty("discount_percentage")
+        int discountPercentage,
+        int quantity,
+        List<Long> colors,
+        @JsonProperty("image_url")
+        String imageUrl,
+        List<Sizes> sizes
+) {
 
-    private  int discountPrice;
-    private int discountPercentage;
-    private int quantity;
-    private  String color;
-    private String imageUrl;
 
-    private Set<Size> sizes=new HashSet<>();
-    private String topLevelCategory;
-    private String secondLevelCategory;
-    private String thirdLevelCategory;
+//    private String topLevelCategory;
+//    private String secondLevelCategory;
+//    private String thirdLevelCategory;
 
     //private String category;
 

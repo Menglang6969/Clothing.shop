@@ -1,10 +1,12 @@
 package com.menglang.Clothing.shop.entity;
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import com.menglang.Clothing.shop.entity.embedded.Size;
+import com.menglang.Clothing.shop.entity.enums.Sizes;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -17,33 +19,41 @@ import java.util.Set;
 public class ProductEntity extends BaseAuditEntity<Long> {
 
 
-    @Column(unique = true, length = 50)
+    @Column(length = 50)
     private String title;
 
     @Column()
     private Double price;
 
-    @Column(unique = true, length = 50)
+    @Column( length = 50)
     private String brand;
 
-    @Column(unique = true, length = 50)
-    private String color;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_colors",
+            joinColumns = @JoinColumn(name = "product_id",referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "color_id",referencedColumnName = "id")
+    )
+    @Builder.Default
+    private Set<ColorEntity> colors=new HashSet<>();
 
     @Column()
     private Integer quantity;
 
-    @ElementCollection
-    @CollectionTable(name = "size",
-            joinColumns = @JoinColumn(name = "product_id")
-    )
-    @Builder.Default
-    private Set<Size> sizes=new HashSet<>();
 
-    @Column(unique = true, length = 150)
+    @ElementCollection(targetClass = Sizes.class)
+    @CollectionTable(name = "product_sizes", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "sizes")
+    @Enumerated(EnumType.STRING) // Store size as a string
+    private List<Sizes> sizes;
+
+
+    @Column( length = 150)
     private String imageUrl;
 
 
-    @Column(length = 100,unique=true)
+    @Column(length = 100)
     private String description;
 
     @Column(length = 10,name = "discounted_price")

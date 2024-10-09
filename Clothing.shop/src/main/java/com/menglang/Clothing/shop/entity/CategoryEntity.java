@@ -3,20 +3,22 @@ package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Builder
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "category_tbl")
+@Table(name = "category_tbl", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")  // Ensure 'name' is unique
+})
+@EntityListeners(AuditingEntityListener.class)
 public class CategoryEntity extends BaseAuditEntity<Long> {
 
     @Column(unique=true,length=30)
@@ -24,13 +26,13 @@ public class CategoryEntity extends BaseAuditEntity<Long> {
 
     @ManyToOne()
     @JoinColumn(
-            name = "parent_category_id"
+            name = "parent_id"
     )
-    private CategoryEntity parent;
+    private CategoryEntity parentId;
 
     private int level;
 
-    @Column(unique=true,length=50)
+    @Column(length=50)
     private String description;
 
     @OneToMany(mappedBy = "category")

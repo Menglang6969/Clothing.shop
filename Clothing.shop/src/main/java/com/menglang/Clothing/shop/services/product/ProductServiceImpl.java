@@ -3,26 +3,37 @@ package com.menglang.Clothing.shop.services.product;
 import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
 import com.menglang.Clothing.shop.entity.CategoryEntity;
+import com.menglang.Clothing.shop.entity.ColorEntity;
 import com.menglang.Clothing.shop.entity.ProductEntity;
 import com.menglang.Clothing.shop.entity.embedded.Size;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.CategoryRepository;
+import com.menglang.Clothing.shop.repositories.ColorRepository;
 import com.menglang.Clothing.shop.repositories.ProductRepository;
 import com.menglang.Clothing.shop.services.user.UserServiceImp;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 
 public class ProductServiceImpl implements ProductInterface {
 
+    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
     @Autowired
     private final ProductRepository productRepository;
+
+    @Autowired
+    private final ColorRepository colorRepository;
 
     @Autowired
     private final UserServiceImp userService;
@@ -33,32 +44,39 @@ public class ProductServiceImpl implements ProductInterface {
 
     @Override
     public ResponseErrorTemplate create(ProductRequest product) {
-//        CategoryEntity category = findOrCreateCategory(
-//                product.getTopLevelCategory(),
-//                product.getSecondLevelCategory(),
-//                product.getThirdLevelCategory());
 
-        CategoryEntity category=categoryRepository.findById(product.getCategoryId()).orElseThrow(()->new CustomMessageException("Category does not exist","400"));
-        ProductEntity product_data = ProductEntity.builder()
-                .title(product.getTitle())
-                .color(product.getColor())
-                .description(product.getDescription())
-                .discountedPrice(product.getDiscountPrice())
-                .discountedPercent(product.getDiscountPercentage())
-                .imageUrl(product.getImageUrl())
-                .brand(product.getBrand())
-                .price(product.getPrice())
-                .sizes(product.getSizes())
-                .quantity(product.getQuantity())
-                .category(category)
-                .build();
+        log.info("sizes: {}",product.sizes());
         try {
+            Set<ColorEntity> colorsSet = new HashSet<>();
+            for(Long color: product.colors()){
+                Optional<ColorEntity> existColor=colorRepository.findById(color);
+                existColor.ifPresent(colorsSet::add);
+            }
+            log.info("colorsSet: {}",colorsSet);
+
+            CategoryEntity category = categoryRepository.findById(product.category()).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
+            ProductEntity product_data = ProductEntity.builder()
+                    .title(product.title())
+                    .colors(colorsSet)
+                    .description(product.description())
+                    .discountedPrice(product.discountPrice())
+                    .discountedPercent(product.discountPercentage())
+                    .imageUrl(product.imageUrl())
+                    .brand(product.brand())
+                    .price(product.price())
+                    .sizes(product.sizes())
+                    .quantity(product.quantity())
+                    .category(category)
+                    .build();
+
             productRepository.save(product_data);
             return ResponseErrorTemplate.builder()
                     .message("Product Created Successful")
                     .code("201")
+                    .object(product_data)
                     .build();
         } catch (Exception e) {
+            log.info("product error: {}",e.getLocalizedMessage());
             throw new CustomMessageException(e.getMessage(), "500");
         }
     }

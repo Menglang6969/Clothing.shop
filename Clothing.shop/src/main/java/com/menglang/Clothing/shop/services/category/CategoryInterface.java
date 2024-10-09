@@ -11,4 +11,6 @@ public interface CategoryInterface {
     public ResponseErrorTemplate delete(Long id);
 
     public ResponseErrorTemplate getAll();
+
+    public ResponseErrorTemplate findOne(Long id);
 }
