@@ -3,6 +3,8 @@ package com.menglang.Clothing.shop.secuity.userDetails;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.UserRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+
 public class CustomUserDetailService implements UserDetailsService {
 
     @Autowired
@@ -35,7 +38,7 @@ public class CustomUserDetailService implements UserDetailsService {
     }
 
     public UserPrincipal customUserDetail(String username) throws CustomMessageException{
-        Optional<UserEntity> user= userRepository.findByUsername(username);
+        Optional<UserEntity> user= this.userRepository.findByUsername(username);
         if(user.isEmpty()){
             throw CustomMessageException.builder()
                     .message("User not found")
@@ -63,12 +66,12 @@ public class CustomUserDetailService implements UserDetailsService {
            if(user.get().getAttempt()>3){
                log.error("User {} update status blocked",username);
            }
-           userRepository.save(user.get());
+           this.userRepository.save(user.get());
        }
     }
 
     public void updateAttempt (String username){
-        Optional<UserEntity> user=Optional.ofNullable(userRepository.findByUsername(username)
+        Optional<UserEntity> user=Optional.ofNullable(this.userRepository.findByUsername(username)
                 .orElseThrow(() ->
                         new CustomMessageException("User Not Found", String.valueOf(HttpStatus.UNAUTHORIZED.value()))));
 

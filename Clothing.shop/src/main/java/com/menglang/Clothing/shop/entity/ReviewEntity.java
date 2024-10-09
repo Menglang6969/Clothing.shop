@@ -27,5 +27,5 @@ public class ReviewEntity extends BaseAuditEntity<Long> {
     @ManyToOne
     @JoinColumn(name = "product_id")
     @JsonIgnore
-    private UserEntity product;
+    private ProductEntity product;
 }

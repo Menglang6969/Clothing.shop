@@ -1,8 +1,8 @@
 package com.menglang.Clothing.shop.secuity.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.menglang.Clothing.shop.dto.AuthenticationRequest;
-import com.menglang.Clothing.shop.dto.AuthenticationResponse;
+import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
+import com.menglang.Clothing.shop.dto.auth.AuthenticationResponse;
 import com.menglang.Clothing.shop.exceptions.CustomMessageExceptionUtils;
 import com.menglang.Clothing.shop.secuity.jwt.JwtService;
 import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
@@ -95,7 +95,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         super.unsuccessfulAuthentication(request, response, failed);
 
-        var messageException = CustomMessageExceptionUtils.unauthorized();
+        var messageException = CustomMessageExceptionUtils.unauthorized("Unauthorized");
         var msgJson = objectMapper.writeValueAsString(messageException);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

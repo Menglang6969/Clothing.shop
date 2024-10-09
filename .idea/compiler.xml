@@ -13,9 +13,6 @@
     <bytecodeTargetLevel>
       <module name="Clothing.shop.Clothing.shop.main~1" target="17" />
       <module name="Clothing.shop.Clothing.shop.test~1" target="17" />
-      <module name="com.menglang.Clothing.shop" target="17" />
-      <module name="com.menglang.Clothing.shop.main" target="17" />
-      <module name="com.menglang.Clothing.shop.test" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -1,4 +1,4 @@
-package com.menglang.Clothing.shop.dto;
+package com.menglang.Clothing.shop.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

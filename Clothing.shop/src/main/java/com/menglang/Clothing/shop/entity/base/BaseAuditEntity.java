@@ -17,6 +17,7 @@ import java.util.Date;
 @Getter
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseAuditEntity <T extends Serializable> extends BaseEntity<T> {
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at",nullable = false,updatable = false)
     @CreatedDate
