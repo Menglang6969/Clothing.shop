@@ -19,31 +19,5 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-//	@Bean
-//	CommandLineRunner commandLineRunner(RoleRepository roleRepository) {
-//		return args -> {
-//			RoleEntity role =new RoleEntity();
-//			role.setId(0L);
-//			role.setName("USER");
-//			roleRepository.save(role);
-//			role.setId(0L);
-//			role.setName("ADMIN");
-//			roleRepository.save(role);
-//		};
-//	}
-//
-//    @Bean
-//    CommandLineRunner commandLineRunner(ColorRepository colorRepository) {
-//        return args -> {
-//            List<String> colors = List.of("WHITE", "BLACK", "GRAY", "BLUE", "RED", "PINK");
-//            ColorEntity colorEntity = new ColorEntity();
-//            for (String color : colors) {
-//                colorEntity.setName(color);
-//                colorEntity.setId(0L);
-//                colorRepository.save(colorEntity);
-//            }
-//
-//        };
-//    }
 
 }

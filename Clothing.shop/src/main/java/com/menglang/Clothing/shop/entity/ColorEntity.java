@@ -24,5 +24,5 @@ public class ColorEntity extends BaseAuditEntity<Long> {
 
     @ManyToMany(mappedBy = "colors")
     @Builder.Default
-    private Set<ProductEntity> user=new HashSet<>();
+    private Set<ProductEntity> products=new HashSet<>();
 }

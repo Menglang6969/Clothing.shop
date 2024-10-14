@@ -32,11 +32,12 @@ public class CustomCorsFilter implements Filter {
         httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_HEADER,"*");
         httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_METHOD,"*");
         httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN,"*");
-        httpServletResponse.setHeader(ACCESS_CONTROL_MAX_AGE,"3600");
+        httpServletResponse.setHeader(ACCESS_CONTROL_MAX_AGE,"36000");
 
         if(HttpMethod.OPTIONS.name().equalsIgnoreCase(((HttpServletRequest) request).getMethod())){
            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_OK);
         }
+        log.info("----------------Servlet http method name: {}",HttpMethod.OPTIONS.name());
         filterChain.doFilter(request,response);
     }
 }

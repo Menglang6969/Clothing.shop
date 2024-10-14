@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public ReviewEntity createReview(ReviewRequest request, UserEntity user) throws Exception {
         try{
-            ProductEntity product=productService.getProductById(request.productId());
+            ProductEntity product=productService.findProductById(request.productId());
             ReviewEntity review=ReviewEntity.builder()
                     .user(user)
                     .product(product)

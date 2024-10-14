@@ -2,34 +2,28 @@ package com.menglang.Clothing.shop.dto.product;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.menglang.Clothing.shop.entity.ColorEntity;
-import com.menglang.Clothing.shop.entity.enums.Sizes;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
 public record ProductRequest(
         String title,
         String description,
-        double price,
-        String brand,
+        @JsonProperty("base_cost")
+        BigDecimal baseCost,
+        @JsonProperty("sell_cost")
+        BigDecimal sellCost,
         Long category,
-        @JsonProperty("discount_price")
-        int discountPrice,
-        @JsonProperty("discount_percentage")
-        int discountPercentage,
-        int quantity,
-        List<Long> colors,
+        @JsonProperty("discounted_price")
+        int discountedPrice,
+        @JsonProperty("discounted_percent")
+        int discountedPercent,
         @JsonProperty("image_url")
         String imageUrl,
-        List<Sizes> sizes
+        List<Long> colors,
+        List<Long> sizes
 ) {
 
-
-//    private String topLevelCategory;
-//    private String secondLevelCategory;
-//    private String thirdLevelCategory;
-
-    //private String category;
 
 }

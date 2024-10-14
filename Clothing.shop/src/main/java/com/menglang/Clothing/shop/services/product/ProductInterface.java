@@ -11,21 +11,22 @@ import java.util.List;
 public interface ProductInterface {
       ResponseErrorTemplate create(ProductRequest product) throws Exception;
      List<ProductEntity> getProducts() throws Exception;
-     ProductEntity getProductById(Long id) throws Exception;
-     ResponseErrorTemplate updateProduct(Long id, ProductEntity product) throws Exception;
+
+     ResponseErrorTemplate getProductById(Long id) throws Exception;
+
+    ResponseErrorTemplate updateProduct(Long id, ProductRequest product) throws Exception;
      ResponseErrorTemplate deleteProduct(Long id) throws Exception;
      List<ProductEntity> getProductsByCategory(String category) throws Exception;
     List<ProductEntity> searchProduct(String query) throws Exception;
      Page<ProductEntity> getAllProducts(
-      String category,
-      List<String> colors,
-      List<Size> sizes,
-      Integer minPrice,
-      Integer maxPrice,
-      Integer discount,
-      String sort,
-      String stock,
-      Integer pageNumber,
-      Integer pageSize
+             Long categoryId,
+             Double minPrice,
+             Double maxPrice,
+             List<Long> colorIds,
+             List<Long> sizeIds,
+             int pageNumber,
+             int pageSize,
+             String sortBy,
+             String sortDir
     );
 }

@@ -34,7 +34,8 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItemEntity createCartItem(CartItemEntity cartItem) throws Exception {
         try {
             cartItem.setQuantity(1);
-            cartItem.setPrice(cartItem.getProduct().getPrice() * cartItem.getQuantity());
+            cartItem.setPrice(11.1);
+            //cartItem.setPrice(cartItem.getProduct().getPrice() * cartItem.getQuantity());
             cartItem.setDiscountedPrice(cartItem.getProduct().getDiscountedPrice());
             return cartItemRepository.save(cartItem);
         } catch (Exception e) {

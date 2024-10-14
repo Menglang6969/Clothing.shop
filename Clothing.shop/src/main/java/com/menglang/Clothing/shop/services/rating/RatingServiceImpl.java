@@ -27,7 +27,7 @@ public class RatingServiceImpl implements RatingService{
     @Override
     public RatingEntity createRating(RatingRequest request, UserEntity user) throws Exception {
        try{
-           ProductEntity product=productService.getProductById(request.productId());
+           ProductEntity product=productService.findProductById(request.productId());
            RatingEntity rating=RatingEntity.builder()
                    .user(user)
                    .product(product)
