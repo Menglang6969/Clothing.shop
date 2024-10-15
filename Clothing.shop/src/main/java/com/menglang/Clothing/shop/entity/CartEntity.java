@@ -3,6 +3,7 @@ package com.menglang.Clothing.shop.entity;
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import com.menglang.Clothing.shop.entity.base.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "cart_tbl")
+@AllArgsConstructor
 public class CartEntity extends BaseAuditEntity<Long> {
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -36,4 +38,8 @@ public class CartEntity extends BaseAuditEntity<Long> {
     private int totalDiscountedPrice;
 
     private int discount;
+
+    public CartEntity() {
+
+    }
 }

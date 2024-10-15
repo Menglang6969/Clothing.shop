@@ -2,6 +2,7 @@ package com.menglang.Clothing.shop.dto.product;
 
 import com.menglang.Clothing.shop.dto.category.CategoryDTO;
 import com.menglang.Clothing.shop.dto.colors.ColorDTO;
+import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.size.SizeDTO;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class ProductResponse {
+public class ProductResponse extends BasePageResponse {
 
     private Long id;
     private String title;

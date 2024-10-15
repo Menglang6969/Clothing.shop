@@ -1,6 +1,7 @@
 package com.menglang.Clothing.shop.services.product;
 
 import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.product.ProductMapper;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
 import com.menglang.Clothing.shop.dto.product.ProductResponse;
@@ -45,9 +46,6 @@ public class ProductServiceImpl implements ProductInterface {
     private final SizeRepository sizeRepository;
 
     @Autowired
-    private final UserServiceImp userService;
-
-    @Autowired
     private final CategoryRepository categoryRepository;
 
     @Autowired
@@ -60,41 +58,16 @@ public class ProductServiceImpl implements ProductInterface {
         log.info("sizes: {}", product.sizes());
         try {
 
-            Set<ColorEntity> colorsSet = new HashSet<>();
-            for (Long color : product.colors()) {
-                Optional<ColorEntity> existColor = colorRepository.findById(color);
-                existColor.ifPresent(colorsSet::add);
-            }
+            Set<ColorEntity> colorsSet = checkColors(product.colors());
+            Set<SizeEntity> productSizes = checkSizes(product.sizes());
+            CategoryEntity category = checkCategory(product.category());
 
-            Set<SizeEntity> productSizes = new HashSet<>();
-            for (Long size : product.sizes()) {
-                Optional<SizeEntity> existSize = sizeRepository.findById(size);
-                existSize.ifPresent(productSizes::add);
-            }
-
-
-            CategoryEntity category = categoryRepository.findById(product.category()).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
-            ProductEntity product_data = ProductEntity.builder()
-                    .title(product.title())
-                    .sellCost(product.sellCost())
-                    .baseCost(product.baseCost())
-                    .description(product.description())
-                    .discountedPrice(product.discountedPrice())
-                    .discountedPercent(product.discountedPercent())
-                    .imageUrl(product.imageUrl())
-                    .sizes(productSizes)
-                    .colors(colorsSet)
-                    .category(category)
-                    .build();
+            ProductEntity product_data = ProductEntity.builder().title(product.title()).sellCost(product.sellCost()).baseCost(product.baseCost()).description(product.description()).discountedPrice(product.discountedPrice()).discountedPercent(product.discountedPercent()).imageUrl(product.imageUrl()).sizes(productSizes).colors(colorsSet).category(category).build();
 
             ProductEntity resProduct = productRepository.save(product_data);
             ProductResponse productDto = productMapper.toProductDTO(resProduct);
 
-            return ResponseErrorTemplate.builder()
-                    .message("Product Created Successful")
-                    .code("201")
-                    .object(productDto)
-                    .build();
+            return ResponseErrorTemplate.builder().message("Product Created Successful").code("201").object(productDto).build();
         } catch (Exception e) {
             log.info("product error: {}", e.getLocalizedMessage());
             throw new CustomMessageException(e.getMessage(), "500");
@@ -110,50 +83,45 @@ public class ProductServiceImpl implements ProductInterface {
     public ResponseErrorTemplate getProductById(Long id) {
         ProductEntity product = findProductById(id);
         ProductResponse productResponse = productMapper.toProductDTO(product);
-        return ResponseErrorTemplate.builder().message("successful")
-                .code("200")
-                .object(productResponse)
-                .build();
+        return ResponseErrorTemplate.builder().message("successful").code("200").object(productResponse).build();
     }
 
     public ProductEntity findProductById(Long id) {
-        return this.productRepository.findById(id).orElseThrow(() ->
-                new CustomMessageException("Product Not Found", "404"));
+        return this.productRepository.findById(id).orElseThrow(() -> new CustomMessageException("Product Not Found", "404"));
     }
 
 
     @Override
-    public ResponseErrorTemplate updateProduct(Long id, ProductRequest data) {
-//        ProductEntity product = findProductById(id);
-//        if (data.quantity() != 0) {
-//            product.setQuantity(data.quantity());
-//        }
-//        try {
-//            ProductEntity updatedProduct = this.productRepository.save(product);
-//            ProductResponse productResponse= productMapper.toProductDTO(updatedProduct);
-//            return ResponseErrorTemplate.builder()
-//                    .message("Product Updated Successful")
-//                    .code("200")
-//                    .object(productResponse)
-//                    .build();
-//        } catch (Exception e) {
-//            throw new CustomMessageException(e.getMessage(), "500");
-//        }
-        return null;
+    public ResponseErrorTemplate updateProduct(Long id, ProductRequest data) throws Exception {
+        ProductEntity product = findProductById(id);
 
+        product.setBaseCost(data.baseCost());
+        product.setSellCost(data.sellCost());
+        product.setDescription(data.description());
+        product.setImageUrl(data.imageUrl());
+        product.setTitle(data.title());
+        product.setCategory(checkCategory(data.category()));
+        product.setSizes(checkSizes(data.sizes()));
+        product.setColors(checkColors(data.colors()));
+
+        try {
+            ProductEntity updatedProduct = this.productRepository.save(product);
+            ProductResponse productResponse = productMapper.toProductDTO(updatedProduct);
+            return ResponseErrorTemplate.builder().message("Product Updated Successful").code("200").object(productResponse).build();
+        } catch (Exception e) {
+            throw new CustomMessageException(e.getMessage(), "500");
+        }
 
     }
 
     @Override
     public ResponseErrorTemplate deleteProduct(Long id) {
+
         ProductEntity product = findProductById(id);
         product.getSizes().clear();
         try {
             this.productRepository.delete(product);
-            return ResponseErrorTemplate.builder()
-                    .message("Product Deleted Successful")
-                    .code("200")
-                    .build();
+            return ResponseErrorTemplate.builder().message("Product Deleted Successful").code("200").build();
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
         }
@@ -170,30 +138,47 @@ public class ProductServiceImpl implements ProductInterface {
     }
 
     @Override
-    public Page<ProductEntity> getAllProducts(
-            Long categoryId,
-            Double minPrice,
-            Double maxPrice,
-            List<Long> colorIds,
-            List<Long> sizeIds,
-            int pageNumber,
-            int pageSize,
-            String sortBy,
-            String sortDir
+    public Page<BasePageResponse> getAllProducts(Long categoryId, Double minPrice, Double maxPrice, List<Long> colorIds, List<Long> sizeIds, int page, int limit, String sortBy, String sortDir
 
     ) {
 
+        if (page <= 0 || limit <= 0) throw new CustomMessageException("Page and limit must be greater than 0", "403");
+
         try {
             Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-            Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+            log.info("sort: {}", sort);
+            Pageable pageable = PageRequest.of(page - 1, limit, sort);
+            Page<BasePageResponse> products = this.productRepository.filterProducts(pageable, categoryId, minPrice, maxPrice, colorIds).map(productMapper::toProductDTO);
+            Page<ProductEntity> products_data = this.productRepository.filterProducts(pageable, categoryId, minPrice, maxPrice, colorIds);
+            return products;
 
-            Page<ProductEntity> products= productRepository.filterProducts(categoryId, minPrice, maxPrice, colorIds,pageable);
-
-            log.info("products data {}", products);
-    return null;
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
         }
 
     }
+
+    private CategoryEntity checkCategory(Long categoryId) throws Exception {
+        return categoryRepository.findById(categoryId).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
+
+    }
+
+    private Set<ColorEntity> checkColors(List<Long> colorIds) throws Exception {
+        Set<ColorEntity> colorsSet = new HashSet<>();
+        for (Long color : colorIds) {
+            Optional<ColorEntity> existColor = colorRepository.findById(color);
+            existColor.ifPresent(colorsSet::add);
+        }
+        return colorsSet;
+    }
+
+    private Set<SizeEntity> checkSizes(List<Long> sizeIds) throws Exception {
+        Set<SizeEntity> productSizes = new HashSet<>();
+        for (Long size : sizeIds) {
+            Optional<SizeEntity> existSize = sizeRepository.findById(size);
+            existSize.ifPresent(productSizes::add);
+        }
+        return productSizes;
+    }
+
 }

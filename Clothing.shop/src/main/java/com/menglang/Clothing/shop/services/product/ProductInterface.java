@@ -1,9 +1,9 @@
 package com.menglang.Clothing.shop.services.product;
 
 import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
 import com.menglang.Clothing.shop.entity.ProductEntity;
-import com.menglang.Clothing.shop.entity.embedded.Size;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public interface ProductInterface {
      ResponseErrorTemplate deleteProduct(Long id) throws Exception;
      List<ProductEntity> getProductsByCategory(String category) throws Exception;
     List<ProductEntity> searchProduct(String query) throws Exception;
-     Page<ProductEntity> getAllProducts(
+     Page<BasePageResponse> getAllProducts(
              Long categoryId,
              Double minPrice,
              Double maxPrice,
@@ -28,5 +28,6 @@ public interface ProductInterface {
              int pageSize,
              String sortBy,
              String sortDir
+
     );
 }

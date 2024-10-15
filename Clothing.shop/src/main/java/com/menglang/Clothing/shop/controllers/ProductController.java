@@ -1,15 +1,14 @@
 package com.menglang.Clothing.shop.controllers;
 
 import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
+import com.menglang.Clothing.shop.dto.pageResponse.BaseResponse;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
-import com.menglang.Clothing.shop.entity.ProductEntity;
-import com.menglang.Clothing.shop.entity.embedded.Size;
 import com.menglang.Clothing.shop.services.product.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,7 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<Page<ProductEntity>> findProductByCategory(
+    public ResponseEntity<BaseResponse> findProductByCategory(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
@@ -42,7 +41,7 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sortDir
     ) {
         log.info(" invoke getting products .............");
-        Page<ProductEntity> res = productService.getAllProducts(
+        Page<BasePageResponse> res = productService.getAllProducts(
                 categoryId,
                 minPrice,
                 maxPrice,
@@ -56,12 +55,19 @@ public class ProductController {
         );
 
         System.out.println("complete product");
-        return new ResponseEntity<>(res, HttpStatus.ACCEPTED);
+        return BaseResponse.successful(res,"success");
+
     }
 
     @GetMapping("/product/{id}")
     public ResponseEntity<ResponseErrorTemplate> findProductById(@PathVariable("id") Long productId) throws Exception {
         return ResponseEntity.ok(productService.getProductById(productId));
+    }
+
+    @PutMapping("/product/{id}")
+    public ResponseEntity<ResponseErrorTemplate> updateProduct(@PathVariable("id") Long productId,
+                                                               @RequestBody ProductRequest productRequest)throws Exception{
+        return  ResponseEntity.ok(productService.updateProduct(productId,productRequest));
     }
 
 //    @GetMapping("/product/search")

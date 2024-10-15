@@ -5,6 +5,7 @@ import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
 import com.menglang.Clothing.shop.dto.auth.RegisterResponse;
 import com.menglang.Clothing.shop.dto.user.UserRequest;
 import com.menglang.Clothing.shop.dto.user.UserResponse;
+import com.menglang.Clothing.shop.entity.CartEntity;
 import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
@@ -12,6 +13,8 @@ import com.menglang.Clothing.shop.repositories.RoleRepository;
 import com.menglang.Clothing.shop.repositories.UserRepository;
 import com.menglang.Clothing.shop.secuity.jwt.JwtServiceImp;
 import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
+import com.menglang.Clothing.shop.services.cart.cart.CartService;
+import com.menglang.Clothing.shop.services.cart.cart.CartServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -50,6 +53,11 @@ public class UserServiceImp implements UserInterface {
     @Autowired
     private final AuthenticationManager authenticationManager;
 
+    @Autowired
+    private final CartServiceImpl cartService;
+    @Autowired
+    private CartServiceImpl cartServiceImpl;
+
     @Override
     public ResponseErrorTemplate create(UserRequest data) {
         this.userRequestValidate(data);
@@ -68,7 +76,9 @@ public class UserServiceImp implements UserInterface {
        user.setCreatedAt(new Date());
 
         try {
-            userRepository.save(user);
+            UserEntity saveUser=userRepository.save(user);
+            CartEntity cartUser=cartServiceImpl.CreateCart(saveUser);
+
         } catch (Exception e) {
             throw CustomMessageException.builder().message(e.getMessage()).code(String.valueOf(HttpStatus.UNAUTHORIZED.value())).build();
         }
@@ -88,6 +98,8 @@ public class UserServiceImp implements UserInterface {
                 jwtToken,
                 refreshToken
         );
+
+
         return new ResponseErrorTemplate("Successful","201",authRes);
 
     }
