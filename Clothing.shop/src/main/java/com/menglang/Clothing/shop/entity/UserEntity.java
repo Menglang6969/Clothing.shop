@@ -66,6 +66,4 @@ public class UserEntity extends BaseAuditEntity<Long> {
     private Set<ReviewEntity> review=new HashSet<>();
 
 
-
-
 }

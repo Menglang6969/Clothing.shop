@@ -1,15 +1,14 @@
-package com.menglang.Clothing.shop.services.cart.cartItem;
+package com.menglang.Clothing.shop.services.purchase.purchaseItems;
 
-import com.menglang.Clothing.shop.entity.CartEntity;
-import com.menglang.Clothing.shop.entity.CartItemEntity;
+import com.menglang.Clothing.shop.entity.PurchaseOrderEntity;
+import com.menglang.Clothing.shop.entity.PurchaseItemEntity;
 import com.menglang.Clothing.shop.entity.ProductEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
-import com.menglang.Clothing.shop.repositories.CartItemRepository;
-import com.menglang.Clothing.shop.repositories.CartRepository;
+import com.menglang.Clothing.shop.repositories.PurchaseItemsRepository;
+import com.menglang.Clothing.shop.repositories.PurchaseOrderRepository;
 import com.menglang.Clothing.shop.repositories.UserRepository;
 import com.menglang.Clothing.shop.services.user.UserServiceImp;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.apache.bcel.classfile.Module;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,27 +16,27 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class CartItemServiceImpl implements CartItemService {
+public class PurchaseItemsServiceImpl implements PurchaseItemsService {
 
     @Autowired
     private final UserRepository userRepository;
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private PurchaseItemsRepository purchaseItemsRepository;
     @Autowired
     private UserServiceImp userServiceImp;
 
     @Autowired
-    private CartRepository cartRepository;
+    private PurchaseOrderRepository purchaseOrderRepository;
 
 
     @Override
-    public CartItemEntity createCartItem(CartItemEntity cartItem) throws Exception {
+    public PurchaseItemEntity addItem(PurchaseItemEntity cartItem) throws Exception {
         try {
             cartItem.setQuantity(1);
             cartItem.setPrice(11.1);
             //cartItem.setPrice(cartItem.getProduct().getPrice() * cartItem.getQuantity());
             cartItem.setDiscountedPrice(cartItem.getProduct().getDiscountedPrice());
-            return cartItemRepository.save(cartItem);
+            return purchaseItemsRepository.save(cartItem);
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
         }
@@ -45,39 +44,39 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public CartItemEntity updateCartItem(Long id, CartItemEntity cartItem) throws Exception {
+    public PurchaseItemEntity updateCartItem(Long id, PurchaseItemEntity cartItem) throws Exception {
         try {
-            CartItemEntity item = findCartItemById(id);
+            PurchaseItemEntity item = findCartItemById(id);
             item.setQuantity(cartItem.getQuantity());
             item.setPrice(item.getPrice());
             item.setDiscountedPrice(item.getProduct().getDiscountedPrice());
 
-            return cartItemRepository.save(item);
+            return purchaseItemsRepository.save(item);
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
         }
     }
 
     @Override
-    public CartItemEntity isCartItemExist(CartEntity cart, ProductEntity product, String size) throws Exception {
-        return cartItemRepository.isCartItemExist(cart, product, size);
-
+    public PurchaseItemEntity isCartItemExist(PurchaseOrderEntity cart, ProductEntity product, String size) throws Exception {
+        //return purchaseItemsRepository.isCartItemExist(cart, product, size);
+return null;
     }
 
     @Override
     public void removeCartItem(Long userId, Long cartItemId) throws Exception {
        try{
-           CartItemEntity cartItem=findCartItemById(cartItemId);
-           cartItemRepository.delete(cartItem);
+           PurchaseItemEntity cartItem=findCartItemById(cartItemId);
+           purchaseItemsRepository.delete(cartItem);
        }catch (Exception e){
            throw new CustomMessageException(e.getMessage(),"500");
        }
     }
 
     @Override
-    public CartItemEntity findCartItemById(Long cartItemId) throws Exception {
+    public PurchaseItemEntity findCartItemById(Long cartItemId) throws Exception {
        try{
-           Optional<CartItemEntity> cartItem=cartItemRepository.findById(cartItemId);
+           Optional<PurchaseItemEntity> cartItem= purchaseItemsRepository.findById(cartItemId);
            if(cartItem.isPresent()){
                return cartItem.get();
            }else{

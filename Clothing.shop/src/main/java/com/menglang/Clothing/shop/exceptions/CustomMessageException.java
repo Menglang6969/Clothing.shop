@@ -15,10 +15,8 @@ public class CustomMessageException extends RuntimeException {
 
     @JsonProperty("message")
     private  String message;
-
     @JsonProperty("code")
     private String code;
-
     @JsonIgnore
     private String cause;
     @JsonIgnore

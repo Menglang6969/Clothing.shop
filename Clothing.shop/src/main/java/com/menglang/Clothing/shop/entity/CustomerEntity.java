@@ -3,6 +3,7 @@ package com.menglang.Clothing.shop.entity;
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,5 +27,7 @@ public class CustomerEntity extends BaseAuditEntity<Long> {
     @Column(length = 100)
     private String address;
 
+    @OneToOne(mappedBy = "customer")
+    private PurchaseOrderEntity cart;
 
 }

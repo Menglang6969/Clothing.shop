@@ -1,7 +1,7 @@
 package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
-import com.menglang.Clothing.shop.entity.base.BaseEntity;
+import com.menglang.Clothing.shop.entity.enums.CustomerType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,18 +15,18 @@ import java.util.Set;
 @Getter
 @Builder
 @Entity
-@Table(name = "cart_tbl")
+@Table(name = "purchase")
 @AllArgsConstructor
-public class CartEntity extends BaseAuditEntity<Long> {
+public class PurchaseOrderEntity extends BaseAuditEntity<Long> {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Column(name = "cart_items")
+    @OneToMany(mappedBy ="purchase",orphanRemoval = true)
+    @Column(name = "purchase_items")
     @Builder.Default
-    private Set<CartItemEntity> cartItems = new HashSet<>();
+    private Set<PurchaseItemEntity> purchaseItems = new HashSet<>();
 
     @Column(name = "total_price")
     private double totalPrice;
@@ -37,9 +37,20 @@ public class CartEntity extends BaseAuditEntity<Long> {
     @Column(name = "total_discounted_price")
     private int totalDiscountedPrice;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "customer_type")
+    private CustomerType customerType;
+
+    @Column(name = "generalCustomer")
+    private String generalCustomer;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id",referencedColumnName = "id")
+    private CustomerEntity customer;
+
     private int discount;
 
-    public CartEntity() {
+    public PurchaseOrderEntity() {
 
     }
 }
