@@ -24,7 +24,6 @@ public interface ProductMapper {
     @Mapping(target = "category", source = "category",qualifiedByName = "mapCategory")
     @Mapping(target = "colors", source = "colors",qualifiedByName = "mapColors")
     @Mapping(target = "sizes", source = "sizes", qualifiedByName = "mapSizes")
-
     ProductResponse toProductDTO(ProductEntity product);
 
     ColorDTO toColorDTO(ColorEntity color);

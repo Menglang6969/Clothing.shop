@@ -2,17 +2,17 @@ package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 
 import java.util.HashSet;
 import java.util.Set;
-@EqualsAndHashCode(callSuper = true)
 @Builder
-@Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Setter
+@Getter
 @Table(name = "branches")
 public class BranchEntity extends BaseAuditEntity<Long> {
 
@@ -20,6 +20,8 @@ public class BranchEntity extends BaseAuditEntity<Long> {
     private String name;
 
     private String address;
+
+    private String description;
 
     @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
