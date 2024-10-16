@@ -35,6 +35,6 @@ public class StockEntity extends BaseAuditEntity<Long> {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(name = "average_cost", precision = 10, scale = 2)
-    private BigDecimal averageCost;
+
+
 }

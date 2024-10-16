@@ -21,7 +21,7 @@ public class ProductEntity extends BaseAuditEntity<Long> {
     private String title;
 
     @Column(name = "base_cost", precision = 10)
-    private BigDecimal baseCost;
+    private BigDecimal baseCost;//calculate base Average cost
 
     @Column(name = "sell_cost", precision = 10)
     private BigDecimal sellCost;
@@ -71,5 +71,6 @@ public class ProductEntity extends BaseAuditEntity<Long> {
     private int numRating;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",nullable = false)
     private CategoryEntity category;
 }

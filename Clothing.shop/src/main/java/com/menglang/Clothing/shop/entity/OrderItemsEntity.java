@@ -19,10 +19,16 @@ public class OrderItemsEntity extends BaseEntity<Long> {
     private OrderEntity order;
 
     @ManyToOne
+    @JoinColumn(name = "product_id",nullable = false)
     private ProductEntity product;
 
-    @Column(length = 10)
-    private String size;
+    @ManyToOne
+    @JoinColumn(name = "size_id",nullable = false)
+    private SizeEntity size;
+
+    @ManyToOne
+    @JoinColumn(name = "color_id",nullable = false)
+    private ColorEntity color;
 
     private int quantity;
 
@@ -30,6 +36,9 @@ public class OrderItemsEntity extends BaseEntity<Long> {
 
     @Column(name = "discounted_price")
     private Integer discountedPrice;
+
+    @Column(name = "discounted_percent")
+    private Integer discountedPercent;
 
 
 }

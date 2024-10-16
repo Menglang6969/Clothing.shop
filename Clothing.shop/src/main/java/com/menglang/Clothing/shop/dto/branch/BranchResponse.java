@@ -11,6 +11,7 @@ import java.util.Date;
 @Getter
 @AllArgsConstructor
 public class BranchResponse {
+    Long id;
     String name;
     String address;
     String description;

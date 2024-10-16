@@ -23,6 +23,7 @@ public class SeedingData {
     private final CategoryRepository categoryRepository;
     private final SizeRepository sizeRepository;
     private final ProductRepository productRepository;
+    private final BranchRepository branchRepository;
 
     @PostConstruct
     private void seeding() {
@@ -32,9 +33,29 @@ public class SeedingData {
         seedCategory();
         seedSize();
         seedProduct();
+        seedBranch();
+    }
+
+    private void seedBranch(){
+        List<String> branches=List.of("Olypic","Ta Khmau","Battambong");
+        List<BranchEntity> branchEntities=new ArrayList<>();
+        log.info("seeding branch.......................");
+        for(String branch:branches){
+            BranchEntity br=BranchEntity.builder()
+                    .name(branch)
+                    .description(branch+" city")
+                    .address(branch+" City")
+                    .build();
+            branchEntities.add(br);
+        }
+        branchRepository.saveAll(branchEntities);
+
+
     }
 
     private void seedProduct() {
+
+        log.info("seeding product.......................");
         CategoryEntity category = categoryRepository.findById(2L).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
         Set<ColorEntity> colorsSet = new HashSet<>();
         for (Long color : List.of(1L, 2L)) {
@@ -87,6 +108,7 @@ public class SeedingData {
     }
 
     private void seedSize() {
+        log.info("seeding size.......................");
         SizeEntity size1 = SizeEntity.builder().name("S").build();
         SizeEntity size2 = SizeEntity.builder().name("M").build();
         SizeEntity size3 = SizeEntity.builder().name("L").build();
@@ -97,6 +119,7 @@ public class SeedingData {
     }
 
     private void seedRoles() {
+        log.info("seeding roles.......................");
         RoleEntity role = new RoleEntity();
         role.setId(0L);
         role.setName("USER");
@@ -107,6 +130,7 @@ public class SeedingData {
     }
 
     private void seedColors() {
+        log.info("seeding color.......................");
         List<String> colors = List.of("WHITE", "BLACK", "GRAY", "BLUE", "RED", "PINK");
         ColorEntity colorEntity = new ColorEntity();
         for (String color : colors) {
@@ -117,6 +141,7 @@ public class SeedingData {
     }
 
     private void seedCategory() {
+        log.info("seeding category.......................");
         List<CategoryEntity> categories = new ArrayList<>();
         CategoryEntity category1 = CategoryEntity.builder()
                 .name("T-Shirt")
