@@ -5,9 +5,9 @@ import org.springframework.http.HttpStatus;
 public class CustomMessageExceptionUtils {
     private CustomMessageExceptionUtils(){}
 
-    public static CustomMessageException unauthorized(){
+    public static CustomMessageException unauthorized(String message){
         return CustomMessageException.builder()
-                .message("Unauthorized")
+                .message(message)
                 .code(String.valueOf(HttpStatus.UNAUTHORIZED.value()))
                 .build();
     }

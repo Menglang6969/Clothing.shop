@@ -1,6 +1,11 @@
 package com.menglang.Clothing.shop.services.user;
 
 import com.menglang.Clothing.shop.dto.*;
+import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
+import com.menglang.Clothing.shop.dto.auth.RegisterResponse;
+import com.menglang.Clothing.shop.dto.user.UserRequest;
+import com.menglang.Clothing.shop.dto.user.UserResponse;
+import com.menglang.Clothing.shop.entity.CartEntity;
 import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
@@ -8,6 +13,8 @@ import com.menglang.Clothing.shop.repositories.RoleRepository;
 import com.menglang.Clothing.shop.repositories.UserRepository;
 import com.menglang.Clothing.shop.secuity.jwt.JwtServiceImp;
 import com.menglang.Clothing.shop.secuity.userDetails.UserPrincipal;
+import com.menglang.Clothing.shop.services.cart.cart.CartService;
+import com.menglang.Clothing.shop.services.cart.cart.CartServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -46,6 +53,11 @@ public class UserServiceImp implements UserInterface {
     @Autowired
     private final AuthenticationManager authenticationManager;
 
+    @Autowired
+    private final CartServiceImpl cartService;
+    @Autowired
+    private CartServiceImpl cartServiceImpl;
+
     @Override
     public ResponseErrorTemplate create(UserRequest data) {
         this.userRequestValidate(data);
@@ -64,7 +76,9 @@ public class UserServiceImp implements UserInterface {
        user.setCreatedAt(new Date());
 
         try {
-            userRepository.save(user);
+            UserEntity saveUser=userRepository.save(user);
+            CartEntity cartUser=cartServiceImpl.CreateCart(saveUser);
+
         } catch (Exception e) {
             throw CustomMessageException.builder().message(e.getMessage()).code(String.valueOf(HttpStatus.UNAUTHORIZED.value())).build();
         }
@@ -84,7 +98,50 @@ public class UserServiceImp implements UserInterface {
                 jwtToken,
                 refreshToken
         );
+
+
         return new ResponseErrorTemplate("Successful","201",authRes);
+
+    }
+
+    @Override
+    public ResponseErrorTemplate authenticate(AuthenticationRequest data){
+
+        log.info(" authentication signIn Res: {}", data.username());
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            data.username(),
+                            data.password()
+                    )
+            );
+            log.info(" authentication signIn Res: {}",authentication.isAuthenticated());
+            var user = userRepository.findByUsername(data.username())
+                    .orElseThrow(() -> new UsernameNotFoundException("Invalid credential."));
+
+            UserPrincipal userDetail=new UserPrincipal(
+                    user.getUsername(),
+                    user.getPassword()
+                    ,user.getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
+
+            var jwtToken = jwtService.generateToken(userDetail);
+            var refreshToken=jwtService.refreshToken(userDetail);
+
+            RegisterResponse authRes=new RegisterResponse(
+                    data.username(),
+                    user.getEmail(),
+                    user.getRoles().stream().map(RoleEntity::getName).toList(),
+                    user.getPhone(),
+                    jwtToken,
+                    refreshToken
+            );
+
+            return new ResponseErrorTemplate("Success","200",authRes);
+        }catch (Exception e){
+            return new ResponseErrorTemplate(e.getLocalizedMessage(),"400",e.getMessage());
+        }
+
+
 
     }
 
@@ -139,43 +196,4 @@ public class UserServiceImp implements UserInterface {
         }
     }
 
-    public ResponseErrorTemplate authenticate(AuthenticationRequest data){
-
-        log.info(" authentication signIn Res: {}", data.username());
-       try{
-           Authentication authentication = authenticationManager.authenticate(
-                   new UsernamePasswordAuthenticationToken(
-                           data.username(),
-                           data.password()
-                   )
-           );
-           log.info(" authentication signIn Res: {}",authentication.isAuthenticated());
-           var user = userRepository.findByUsername(data.username())
-                   .orElseThrow(() -> new UsernameNotFoundException("Invalid credential."));
-
-           UserPrincipal userDetail=new UserPrincipal(
-                   user.getUsername(),
-                   user.getPassword()
-                   ,user.getRoles().stream().map(role->new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList()));
-
-           var jwtToken = jwtService.generateToken(userDetail);
-           var refreshToken=jwtService.refreshToken(userDetail);
-
-           RegisterResponse authRes=new RegisterResponse(
-                   data.username(),
-                   user.getEmail(),
-                   user.getRoles().stream().map(RoleEntity::getName).toList(),
-                   user.getPhone(),
-                   jwtToken,
-                   refreshToken
-           );
-
-           return new ResponseErrorTemplate("Success","200",authRes);
-       }catch (Exception e){
-           return new ResponseErrorTemplate(e.getLocalizedMessage(),"400",e.getMessage());
-       }
-
-
-
-    }
 }

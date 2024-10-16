@@ -1,47 +1,71 @@
 package com.menglang.Clothing.shop.entity;
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
-import com.menglang.Clothing.shop.entity.embedded.Size;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "product_tbl")
 public class ProductEntity extends BaseAuditEntity<Long> {
 
 
-    @Column(unique = true, length = 50)
+    @Column(length = 50)
     private String title;
 
-    @Column(unique = true, length = 50)
-    private String brand;
+    @Column(name = "base_cost", precision = 10)
+    private BigDecimal baseCost;
 
-    @Column(unique = true, length = 50)
-    private String color;
+    @Column(name = "sell_cost", precision = 10)
+    private BigDecimal sellCost;
 
-    @ElementCollection
-    @CollectionTable(name = "size",
-            joinColumns = @JoinColumn(name = "product_id")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<StockEntity> stocks=new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_colors",
+            joinColumns = @JoinColumn(name = "product_id",referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "color_id",referencedColumnName = "id")
     )
-    private Set<Size> sizes=new HashSet<>();
+    @Builder.Default
+    private Set<ColorEntity> colors=new HashSet<>();
 
-    @Column(unique = true, length = 150)
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_sizes",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "size_id")
+    )
+    @Builder.Default
+    private Set<SizeEntity> sizes=new HashSet<>();
+
+
+    @Column( length = 150)
     private String imageUrl;
 
-
-    @Column(length = 100,unique=true)
+    @Column(length = 100)
     private String description;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<RatingEntity> ratings = new HashSet<>();
+    @Column(length = 10,name = "discounted_price")
+    private Integer discountedPrice;
 
+
+    @Column(length = 10,name = "discounted_percent")
+    private Integer discountedPercent;
+
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<RatingEntity> ratings = new HashSet<>();
 
     @Column(name = "num_rating")
     private int numRating;

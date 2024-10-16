@@ -10,10 +10,7 @@ import lombok.*;
 @Getter
 @Embeddable
 public class Size {
-
-
     private int qty;
-
     private String name;
 
 }

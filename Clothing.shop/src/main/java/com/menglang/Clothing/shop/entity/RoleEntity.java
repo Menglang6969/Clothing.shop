@@ -22,6 +22,7 @@ public class RoleEntity extends BaseAuditEntity<Long> {
     private String name;
 
     @ManyToMany(mappedBy = "roles")
+    @Builder.Default
     private Set<UserEntity> user=new HashSet<>();
 
 }
