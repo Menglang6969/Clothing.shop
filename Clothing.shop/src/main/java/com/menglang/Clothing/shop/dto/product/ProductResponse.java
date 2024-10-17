@@ -26,9 +26,5 @@ public class ProductResponse extends BasePageResponse {
     private List<ColorDTO> colors;
     private List<SizeDTO> sizes;
 
-    // Auditing fields
-    private String createdBy;
-    private String updatedBy;
-    private Date createdAt;
-    private Date updatedAt;
+
 }

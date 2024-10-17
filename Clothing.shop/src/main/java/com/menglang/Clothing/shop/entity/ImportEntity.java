@@ -3,56 +3,33 @@ package com.menglang.Clothing.shop.entity;
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.io.Serializable;
 
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
 @Table(name = "imports")
 @Builder
-@MappedSuperclass
 @Setter
 @Getter
-@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class ImportEntity {
+public class ImportEntity extends BaseAuditEntity<Long> implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long id;
+    private static final long serialVersionUID = 1L;
 
     @Column(nullable = false, unique = true)
     private String importNo;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product;
-
-    @ManyToOne
     @JoinColumn(name = "branch_id", nullable = false)
     private BranchEntity branch;
 
-    @Column(nullable = false)
-    private Integer quantity;
-
-    @Column(name = "import_cost", precision = 10, scale = 2)
-    private BigDecimal importCost;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreatedDate
-    private Date createdAt;
-
-
-    @Column(name = "created_by", length = 40, updatable = false)
-    @CreatedBy
-    private String createdBy;
-
+    @OneToMany(mappedBy = "import_record")
+    @Builder.Default
+    private Set<ImportDetailsEntity> importDetails = new HashSet<>();
 
 }

@@ -1,10 +1,27 @@
 package com.menglang.Clothing.shop.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.imports.ImportRequest;
+import com.menglang.Clothing.shop.services.imports.ImportService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/admin/import")
+@RequiredArgsConstructor
 public class ImportController {
+    @Autowired
+    private final ImportService importService;
 
+    @PostMapping
+    public ResponseEntity<ResponseErrorTemplate> create(@RequestBody ImportRequest data) throws Exception {
+        return ResponseEntity.ok(importService.makeImport(data));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseErrorTemplate> get(@PathVariable("id") Long id) throws Exception {
+        return ResponseEntity.ok(importService.getImport(id));
+    }
 }
