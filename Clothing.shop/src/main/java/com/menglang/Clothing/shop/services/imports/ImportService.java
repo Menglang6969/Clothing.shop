@@ -7,6 +7,7 @@ import com.menglang.Clothing.shop.dto.imports.ImportResponse;
 public interface ImportService {
 
     ResponseErrorTemplate makeImport(ImportRequest request) throws Exception;
-    public void verifyImport(Long id)throws Exception;
+    public ResponseErrorTemplate verifyImport(Long id)throws Exception;
     public ResponseErrorTemplate getImport(Long id) throws Exception;
+    public ResponseErrorTemplate deleteImport(Long id) throws Exception;
 }

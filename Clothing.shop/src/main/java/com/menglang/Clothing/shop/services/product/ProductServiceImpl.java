@@ -5,15 +5,10 @@ import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.product.ProductMapper;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
 import com.menglang.Clothing.shop.dto.product.ProductResponse;
-import com.menglang.Clothing.shop.entity.CategoryEntity;
-import com.menglang.Clothing.shop.entity.ColorEntity;
-import com.menglang.Clothing.shop.entity.ProductEntity;
-import com.menglang.Clothing.shop.entity.SizeEntity;
+import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
-import com.menglang.Clothing.shop.repositories.CategoryRepository;
-import com.menglang.Clothing.shop.repositories.ColorRepository;
-import com.menglang.Clothing.shop.repositories.ProductRepository;
-import com.menglang.Clothing.shop.repositories.SizeRepository;
+import com.menglang.Clothing.shop.repositories.*;
+import com.menglang.Clothing.shop.services.stock.StockServiceImpl;
 import com.menglang.Clothing.shop.services.user.UserServiceImp;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,11 +19,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,10 +44,16 @@ public class ProductServiceImpl implements ProductInterface {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private StockRepository stockRepository;
+
+    @Autowired
+    private final BranchRepository branchRepository;
+
 
     @Override
+    @Transactional
     public ResponseErrorTemplate create(ProductRequest product) {
-
         log.info("sizes: {}", product.sizes());
         try {
 
@@ -63,8 +62,8 @@ public class ProductServiceImpl implements ProductInterface {
             CategoryEntity category = checkCategory(product.category());
 
             ProductEntity product_data = ProductEntity.builder().title(product.title()).sellCost(product.sellCost()).baseCost(product.baseCost()).description(product.description()).discountedPrice(product.discountedPrice()).discountedPercent(product.discountedPercent()).imageUrl(product.imageUrl()).sizes(productSizes).colors(colorsSet).category(category).build();
-
             ProductEntity resProduct = productRepository.save(product_data);
+            addStockProduct(colorsSet,productSizes,resProduct);
             ProductResponse productDto = productMapper.toProductDTO(resProduct);
 
             return ResponseErrorTemplate.builder().message("Product Created Successful").code("201").object(productDto).build();
@@ -179,6 +178,32 @@ public class ProductServiceImpl implements ProductInterface {
             existSize.ifPresent(productSizes::add);
         }
         return productSizes;
+    }
+
+    private void addStockProduct(Set<ColorEntity> colors,Set<SizeEntity> sizes,ProductEntity product)throws Exception{
+            List<BranchEntity> branchEntities=branchRepository.findAll();
+            List<StockEntity> stockEntities=new ArrayList<>();
+           try{
+               if((long) branchEntities.size() >0){
+                   for(BranchEntity branch:branchEntities){
+                       for(ColorEntity color:colors){
+                           for(SizeEntity size:sizes){
+                               StockEntity stock=StockEntity.builder()
+                                       .branch(branch)
+                                       .product(product)
+                                       .color(color)
+                                       .size(size)
+                                       .quantity(0)
+                                       .build();
+                               stockEntities.add(stock);
+                           }
+                       }
+                   }
+               }
+               stockRepository.saveAll(stockEntities);
+           }catch (Exception e){
+               throw new CustomMessageException(e.getMessage(),"400");
+           }
     }
 
 }

@@ -82,7 +82,8 @@ public class BranchServiceImpl implements BranchService {
                 .build();
     }
 
-    private BranchEntity findById(Long id)throws Exception{
+
+    public  BranchEntity findById(Long id)throws Exception{
         return branchRepository.findById(id).orElseThrow(()->new CustomMessageException("Branch Not Founded","404"));
     }
 }

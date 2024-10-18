@@ -28,7 +28,7 @@ public class ImportEntity extends BaseAuditEntity<Long> implements Serializable 
     @JoinColumn(name = "branch_id", nullable = false)
     private BranchEntity branch;
 
-    @OneToMany(mappedBy = "import_record")
+    @OneToMany(mappedBy = "importRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<ImportDetailsEntity> importDetails = new HashSet<>();
 

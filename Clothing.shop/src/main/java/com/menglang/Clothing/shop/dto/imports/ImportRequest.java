@@ -9,6 +9,7 @@ public record ImportRequest(
         @JsonProperty("import_no")
         String importNo,
         Long branch,
+        @JsonProperty("import_details")
         List<ImportDetailsRequest> importDetails
 ) {
 }
