@@ -33,4 +33,10 @@ public class ImportController {
         log.info("invoke verify import .......................");
         return ResponseEntity.ok(importService.verifyImport(id));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseErrorTemplate> drop(@PathVariable("id") Long id) throws Exception{
+        log.info("invoke drop import...........................");
+        return ResponseEntity.ok(importService.deleteImport(id));
+    }
 }

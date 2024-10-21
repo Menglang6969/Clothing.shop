@@ -11,12 +11,12 @@ import com.menglang.Clothing.shop.entity.StockEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.BranchRepository;
 import com.menglang.Clothing.shop.repositories.ImportRepository;
-import com.menglang.Clothing.shop.services.branch.BranchService;
 import com.menglang.Clothing.shop.services.imports.importDetails.ImportDetailsService;
-import com.menglang.Clothing.shop.services.stock.StockServiceImpl;
+import com.menglang.Clothing.shop.services.stock.StockService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -34,22 +34,20 @@ public class ImportServiceImpl implements ImportService {
     private final ImportDetailsService importDetailsService;
 
     @Autowired
-    private final BranchService branchService;
-    @Autowired
     private final BranchRepository branchRepository;
 
     @Autowired
     private final ImportMapper importMapper;
 
     @Autowired
-    private final StockServiceImpl stockService;
+    private final StockService stockService;
 
 
     @Override
     @Transactional()
     public ResponseErrorTemplate makeImport(ImportRequest request) throws RuntimeException {
         try {
-            BranchEntity branch=branchRepository.findById(request.branch()).orElseThrow(()->new CustomMessageException("Branch Not found","400"));
+            BranchEntity branch = branchRepository.findById(request.branch()).orElseThrow(() -> new CustomMessageException("Branch Not found", "400"));
             ImportEntity importEntity = ImportEntity.builder()
                     .importNo(request.importNo())
                     .branch(branch)
@@ -78,7 +76,7 @@ public class ImportServiceImpl implements ImportService {
 
     //verity to update stock
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public ResponseErrorTemplate verifyImport(Long id) throws Exception {
 
         try {
@@ -94,7 +92,7 @@ public class ImportServiceImpl implements ImportService {
                         .color(detail.getColor())
                         .product(detail.getProduct())
                         .build();
-                stockService.updateStock(id,stock);
+                stockService.updateStock(id, stock, detail.getImportCost());
             }
             return ResponseErrorTemplate.builder()
                     .code("200")
@@ -117,7 +115,17 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public ResponseErrorTemplate deleteImport(Long id) throws Exception {
-        return null;
+       try{
+           ImportEntity importData=this.getImportById(id);
+           this.importRepository.delete(importData);
+           return ResponseErrorTemplate.builder()
+                   .message("import was Drop successful")
+                   .code("200")
+                   .object("{}")
+                   .build();
+       }catch (Exception e){
+           throw new CustomMessageException(e.getMessage(),"400");
+       }
     }
 
     private ImportEntity getImportById(Long id) throws Exception {

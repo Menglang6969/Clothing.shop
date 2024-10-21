@@ -3,7 +3,6 @@ import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,10 +20,10 @@ public class ProductEntity extends BaseAuditEntity<Long> {
     private String title;
 
     @Column(name = "base_cost", precision = 10)
-    private BigDecimal baseCost;//calculate base Average cost
+    private Double baseCost;//calculate base Average cost
 
     @Column(name = "sell_cost", precision = 10)
-    private BigDecimal sellCost;
+    private Double sellCost;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default

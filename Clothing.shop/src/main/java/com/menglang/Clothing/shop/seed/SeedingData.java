@@ -3,13 +3,13 @@ package com.menglang.Clothing.shop.seed;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.*;
+import com.menglang.Clothing.shop.services.stock.StockService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 @Component
@@ -18,15 +18,16 @@ public class SeedingData {
 
     private static final Logger log = LoggerFactory.getLogger(SeedingData.class);
     private final RoleRepository roleRepository;
-    private final UserRepository userRepository;
+
     private final ColorRepository colorRepository;
     private final CategoryRepository categoryRepository;
     private final SizeRepository sizeRepository;
     private final ProductRepository productRepository;
     private final BranchRepository branchRepository;
+    private final StockService stockService;
 
     @PostConstruct
-    private void seeding() {
+    private void seeding() throws Exception {
         log.info(" seeding data..........................................");
         seedColors();
         seedRoles();
@@ -34,10 +35,11 @@ public class SeedingData {
         seedSize();
         seedProduct();
         seedBranch();
+        seedProductStock();
     }
 
     private void seedBranch(){
-        List<String> branches=List.of("Olypic","Ta Khmau","Battambong");
+        List<String> branches=List.of("Olympic","Ta Khmau","Battambang");
         List<BranchEntity> branchEntities=new ArrayList<>();
         log.info("seeding branch.......................");
         for(String branch:branches){
@@ -73,10 +75,10 @@ public class SeedingData {
                 .title("NIKE")
                 .category(category)
                 .description("Made from Cambodia")
-                .baseCost(BigDecimal.valueOf(5.55))
+                .baseCost(5.55)
                 .colors(colorsSet)
                 .sizes(productSizes)
-                .sellCost(BigDecimal.valueOf(8.99))
+                .sellCost(8.99)
                 .imageUrl("https://localhost:image_url")
                 .build();
 
@@ -84,10 +86,10 @@ public class SeedingData {
                 .title("Adidas")
                 .category(category)
                 .description("Made from Cambodia")
-                .baseCost(BigDecimal.valueOf(5.55))
+                .baseCost(5.55)
                 .colors(colorsSet)
                 .sizes(productSizes)
-                .sellCost(BigDecimal.valueOf(8.99))
+                .sellCost(8.99)
                 .imageUrl("https://localhost:image_url")
                 .build();
 
@@ -95,10 +97,10 @@ public class SeedingData {
                 .title("Jodan")
                 .category(category)
                 .description("Made from Cambodia")
-                .baseCost(BigDecimal.valueOf(5.55))
+                .baseCost(5.55)
                 .colors(colorsSet)
                 .sizes(productSizes)
-                .sellCost(BigDecimal.valueOf(8.99))
+                .sellCost(8.99)
                 .imageUrl("https://localhost:image_url")
                 .build();
 
@@ -165,6 +167,17 @@ public class SeedingData {
         categoryRepository.saveAll(categories);
     }
 
+    private void seedProductStock() throws Exception {
+        log.info("Seeding product stock.............................");
+        List<ProductEntity> products=productRepository.findAll();
+        if(!products.isEmpty()){
+           for(ProductEntity product:products){
+               Set<ColorEntity> colors=product.getColors();
+               Set<SizeEntity> sizes = product.getSizes();
+               stockService.addProductStocks(colors,sizes,product);
+           }
+        }
+    }
     private void seedUsers() {
 
     }

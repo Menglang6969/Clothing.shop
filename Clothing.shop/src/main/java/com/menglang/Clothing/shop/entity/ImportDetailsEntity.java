@@ -9,19 +9,14 @@ import java.util.Objects;
 
 
 @Entity
-@Table(name = "import_details",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"product_id","size_id","color_id"})
-
-)
+@Table(name = "import_details")
 @Builder
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImportDetailsEntity extends BaseEntity<Long> implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-
+   // private static final long serialVersionUID = 34L;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)

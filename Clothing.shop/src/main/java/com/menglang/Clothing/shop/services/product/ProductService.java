@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface ProductInterface {
+public interface ProductService {
       ResponseErrorTemplate create(ProductRequest product) throws Exception;
      List<ProductEntity> getProducts() throws Exception;
 

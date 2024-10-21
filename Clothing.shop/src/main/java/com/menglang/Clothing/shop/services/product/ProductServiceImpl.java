@@ -8,8 +8,8 @@ import com.menglang.Clothing.shop.dto.product.ProductResponse;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.*;
+
 import com.menglang.Clothing.shop.services.stock.StockServiceImpl;
-import com.menglang.Clothing.shop.services.user.UserServiceImp;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +25,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-
-public class ProductServiceImpl implements ProductInterface {
+public class ProductServiceImpl implements ProductService {
 
     private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
     @Autowired
@@ -41,14 +40,12 @@ public class ProductServiceImpl implements ProductInterface {
     @Autowired
     private final CategoryRepository categoryRepository;
 
-    @Autowired
-    private ProductMapper productMapper;
 
     @Autowired
-    private StockRepository stockRepository;
+    private final StockServiceImpl stockService;
 
     @Autowired
-    private final BranchRepository branchRepository;
+    private final ProductMapper productMapper;
 
 
     @Override
@@ -63,7 +60,7 @@ public class ProductServiceImpl implements ProductInterface {
 
             ProductEntity product_data = ProductEntity.builder().title(product.title()).sellCost(product.sellCost()).baseCost(product.baseCost()).description(product.description()).discountedPrice(product.discountedPrice()).discountedPercent(product.discountedPercent()).imageUrl(product.imageUrl()).sizes(productSizes).colors(colorsSet).category(category).build();
             ProductEntity resProduct = productRepository.save(product_data);
-            addStockProduct(colorsSet,productSizes,resProduct);
+           stockService.addProductStocks(colorsSet,productSizes,resProduct);
             ProductResponse productDto = productMapper.toProductDTO(resProduct);
 
             return ResponseErrorTemplate.builder().message("Product Created Successful").code("201").object(productDto).build();
@@ -88,7 +85,6 @@ public class ProductServiceImpl implements ProductInterface {
     public ProductEntity findProductById(Long id) {
         return this.productRepository.findById(id).orElseThrow(() -> new CustomMessageException("Product Not Found", "404"));
     }
-
 
     @Override
     public ResponseErrorTemplate updateProduct(Long id, ProductRequest data) throws Exception {
@@ -180,30 +176,5 @@ public class ProductServiceImpl implements ProductInterface {
         return productSizes;
     }
 
-    private void addStockProduct(Set<ColorEntity> colors,Set<SizeEntity> sizes,ProductEntity product)throws Exception{
-            List<BranchEntity> branchEntities=branchRepository.findAll();
-            List<StockEntity> stockEntities=new ArrayList<>();
-           try{
-               if((long) branchEntities.size() >0){
-                   for(BranchEntity branch:branchEntities){
-                       for(ColorEntity color:colors){
-                           for(SizeEntity size:sizes){
-                               StockEntity stock=StockEntity.builder()
-                                       .branch(branch)
-                                       .product(product)
-                                       .color(color)
-                                       .size(size)
-                                       .quantity(0)
-                                       .build();
-                               stockEntities.add(stock);
-                           }
-                       }
-                   }
-               }
-               stockRepository.saveAll(stockEntities);
-           }catch (Exception e){
-               throw new CustomMessageException(e.getMessage(),"400");
-           }
-    }
 
 }

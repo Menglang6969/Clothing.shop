@@ -2,16 +2,16 @@ package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "stocks")
 @Builder
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 public class StockEntity extends BaseAuditEntity<Long> {
 
@@ -35,6 +35,18 @@ public class StockEntity extends BaseAuditEntity<Long> {
     @Column(nullable = false)
     private Integer quantity;
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        StockEntity that = (StockEntity) object;
+        return Objects.equals(product, that.product) && Objects.equals(branch, that.branch) && Objects.equals(size, that.size) && Objects.equals(color, that.color) && Objects.equals(quantity, that.quantity);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(product, branch, size, color, quantity);
+    }
 
 
 }
