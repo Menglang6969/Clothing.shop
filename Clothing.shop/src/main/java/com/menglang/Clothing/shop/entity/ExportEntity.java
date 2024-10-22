@@ -1,12 +1,20 @@
 package com.menglang.Clothing.shop.entity;
 
+import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.*;
 
-import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
-public class ExportEntity {
+@Entity
+@Table(name = "exports")
+@Builder
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ExportEntity extends BaseAuditEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,22 +24,15 @@ public class ExportEntity {
     private String exportNo;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private ProductEntity product;
+    @JoinColumn(name = "from_branch", nullable = false)
+    private BranchEntity fromBranch;
 
     @ManyToOne
-    @JoinColumn(name = "branch_id", nullable = false)
-    private BranchEntity branch;
+    @JoinColumn(name = "to_branch", nullable = false)
+    private BranchEntity toBranch;
 
-    @Column(nullable = false)
-    private Integer quantity;
+    @OneToMany(mappedBy = "exportRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ExportDetailsEntity> exportDetails = new HashSet<>();
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @CreatedDate
-    private Date createdAt;
-
-    @Column(name = "created_by", length = 40, updatable = false)
-    @CreatedBy
-    private String createdBy;
 }

@@ -6,10 +6,8 @@ import com.menglang.Clothing.shop.entity.ImportDetailsEntity;
 import com.menglang.Clothing.shop.entity.ProductEntity;
 import com.menglang.Clothing.shop.entity.SizeEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
-import com.menglang.Clothing.shop.repositories.ColorRepository;
+import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.ImportDetailsRepository;
-import com.menglang.Clothing.shop.repositories.SizeRepository;
-import com.menglang.Clothing.shop.services.product.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,21 +20,15 @@ public class ImportDetailsServiceImpl implements ImportDetailsService {
     private final ImportDetailsRepository importDetailsRepository;
 
     @Autowired
-    private final ProductServiceImpl productService;
-
-    @Autowired
-    private final SizeRepository sizeRepository;
-
-    @Autowired
-    private final ColorRepository colorRepository;
+    private final GetEntitiesById getEntity;
 
 
     @Override
     public ImportDetailsEntity create(ImportDetailsRequest data) throws Exception {
 
-        ColorEntity color=findColorById(data.color());
-        SizeEntity size=findSizeById(data.size());
-        ProductEntity product=productService.findProductById(data.product());
+        ColorEntity color = getEntity.findColorById(data.color());
+        SizeEntity size = getEntity.findSizeById(data.size());
+        ProductEntity product = getEntity.findProductById(data.product());
 
         return ImportDetailsEntity.builder()
                 .importCost(data.importCost())
@@ -48,11 +40,11 @@ public class ImportDetailsServiceImpl implements ImportDetailsService {
     }
 
     @Override
-    public ImportDetailsEntity update(Long id,ImportDetailsRequest data) throws Exception {
-        ImportDetailsEntity details=findImportDetailsById(id);
-        ColorEntity color=findColorById(data.color());
-        SizeEntity size=findSizeById(data.size());
-        ProductEntity product=productService.findProductById(data.product());
+    public ImportDetailsEntity update(Long id, ImportDetailsRequest data) throws Exception {
+        ImportDetailsEntity details = findImportDetailsById(id);
+        ColorEntity color = getEntity.findColorById(data.color());
+        SizeEntity size = getEntity.findSizeById(data.size());
+        ProductEntity product = getEntity.findProductById(data.product());
 
         details.setColor(color);
         details.setSize(size);
@@ -63,7 +55,7 @@ public class ImportDetailsServiceImpl implements ImportDetailsService {
     }
 
     private void validateProduct(Long pid, Long colorId, Long sizeId) throws Exception {
-        ProductEntity product = productService.findProductById(pid);
+        ProductEntity product = getEntity.findProductById(pid);
         boolean isExistSize = product.getSizes().stream().anyMatch(s -> s.getId().equals(sizeId));
         boolean isExistColor = product.getSizes().stream().anyMatch(s -> s.getId().equals(colorId));
         if (!isExistColor) throw new CustomMessageException("Color Not found", "404");
@@ -75,11 +67,4 @@ public class ImportDetailsServiceImpl implements ImportDetailsService {
         return importDetailsRepository.findById(id).orElseThrow(() -> new CustomMessageException("Import details not found", "404"));
     }
 
-    public SizeEntity findSizeById(Long id)throws Exception{
-        return sizeRepository.findById(id).orElseThrow(()->new CustomMessageException("Size no found","404"));
-    }
-
-    public ColorEntity findColorById(Long id)throws Exception{
-        return colorRepository.findById(id).orElseThrow(()->new CustomMessageException("Color no found","404"));
-    }
 }

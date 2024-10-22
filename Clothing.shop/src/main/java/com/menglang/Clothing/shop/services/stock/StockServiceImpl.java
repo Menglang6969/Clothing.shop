@@ -33,12 +33,6 @@ public class StockServiceImpl implements StockService {
     @Transactional
     public StockEntity updateStock(Long id,StockEntity newStock,double newCost) throws Exception {
 
-//        log.info("invoke update branch {} pid: {} size:{} color:{}",
-//                newStock.getBranch().getId(),
-//                newStock.getProduct().getId(),
-//                newStock.getSize().getId(),
-//                newStock.getColor().getId()
-//                );
         try{
             ProductEntity product = productRepository.findById(newStock.getProduct().getId()).orElseThrow(()->new CustomMessageException("Product Not found","400"));
             StockEntity curStock=this.stockRepository.getStock(
@@ -63,7 +57,6 @@ public class StockServiceImpl implements StockService {
             log.info("Calculate Price: {}, ",baseCost);
             product.setBaseCost(baseCost);
             ProductEntity updatedProduct = productRepository.save(product);
-
             curStock.setBranch(newStock.getBranch());
             curStock.setSize(newStock.getSize());
             curStock.setProduct(updatedProduct);
@@ -101,6 +94,12 @@ public class StockServiceImpl implements StockService {
         }catch (Exception e){
             throw new CustomMessageException(e.getMessage(),"400");
         }
+    }
+
+
+    @Override
+    public void exportProducts(Long fromBranch, Long toBranch, StockEntity data) throws Exception {
+
     }
 
 

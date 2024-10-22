@@ -11,4 +11,5 @@ public interface StockService {
 
     public StockEntity updateStock(Long id,StockEntity data,double importCost) throws Exception;
     public void addProductStocks(Set<ColorEntity> colors, Set<SizeEntity> sizes, ProductEntity product) throws Exception;
+    public void exportProducts(Long fromBranch,Long toBranch,StockEntity data) throws Exception;
 }

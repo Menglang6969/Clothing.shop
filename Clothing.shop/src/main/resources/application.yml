@@ -1,6 +1,8 @@
 server:
   port: 8181
 spring:
+  profiles:
+    active: dev
   servlet:
     multipart:
       enabled: true
@@ -38,9 +40,9 @@ springdoc:
 # JWT CONFIG
 # Key secret generate https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx
 # expiration 3600 seconds equal 1 hour
-jwt:
-  url: '/authorization'
-  header: 'Authorization'
-  prefix: 'Bearer '
-  expire: 3600
-  secrete: '42742c99f7c62f94a4fabc5940800b5a98d0d3b30e2348bf0aa87683d6383698'
+#jwt:
+#  url: '/authorization'
+#  header: 'Authorization'
+#  prefix: 'Bearer '
+#  expire: 3600
+#  secrete: '42742c99f7c62f94a4fabc5940800b5a98d0d3b30e2348bf0aa87683d6383698'
