@@ -1,12 +1,13 @@
-package com.menglang.Clothing.shop.services.purchase.purchaseAction;
+package com.menglang.Clothing.shop.services.order.OrderAction;
 
 import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
-import com.menglang.Clothing.shop.dto.purchase.purchaseItems.ItemRequest;
+import com.menglang.Clothing.shop.dto.order.orderDetails.OrderDetailsRequest;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.helpers.GetEntitiesById;
-import com.menglang.Clothing.shop.repositories.PurchaseOrderRepository;
+import com.menglang.Clothing.shop.repositories.OrderRepository;
+import com.menglang.Clothing.shop.services.purchase.purchaseAction.PurchaseCheck;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,28 +21,26 @@ import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
-public class PurchaseCheck {
-
+public class OrderCheck {
     private static final Logger log = LoggerFactory.getLogger(PurchaseCheck.class);
     @Autowired
-    private final PurchaseOrderRepository purchaseOrderRepository;
+    private final OrderRepository orderRepository;
     @Autowired
     private final GetEntitiesById getEntity;
 
 
-    public Set<PurchaseItemEntity> getItemsPurchase(List<ItemRequest> data, PurchaseOrderEntity purchaseOrder) throws Exception {
+    public Set<OrderItemsEntity> getItemsOrdered(List<OrderDetailsRequest> data, OrderEntity order) throws Exception {
         log.info("invoke getItems purchase................");
-        List<PurchaseItemEntity> order_items = new ArrayList<>();
-        for (ItemRequest item : data) {
-            PurchaseItemEntity order_item = validatePurchaseItems(item, purchaseOrder);
+        List<OrderItemsEntity> order_items = new ArrayList<>();
+        for (OrderDetailsRequest item : data) {
+            OrderItemsEntity order_item = validateOrderItems(item, order);
             order_items.add(order_item);
         }
 
         return new HashSet<>(order_items);
     }
 
-
-    public PurchaseItemEntity validatePurchaseItems(ItemRequest item, PurchaseOrderEntity purchaseOrder) throws Exception {
+    public OrderItemsEntity validateOrderItems(OrderDetailsRequest item, OrderEntity order) throws Exception {
         log.info(" validate purchase Item..........................{}", item.color());
 
         try {
@@ -49,25 +48,20 @@ public class PurchaseCheck {
             ColorEntity color = getEntity.findColorById(item.color());
             SizeEntity size = getEntity.findSizeById(item.size());
             log.info(" get color Item..........................{}:{}", color.getId(), color.getName());
-            return PurchaseItemEntity.builder()
+            return OrderItemsEntity.builder()
                     .color(color)
                     .size(size)
                     .price(item.price())
                     .discountedPrice((double) item.discountedPrice())
                     .discountedPercent(item.discountedPercent())
                     .quantity(item.quantity())
-                    .purchase(purchaseOrder)
+                    .order(order)
                     .product(product)
                     .build();
 
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "400");
         }
-    }
-
-
-    public PurchaseOrderEntity findById(Long id) throws Exception {
-        return this.purchaseOrderRepository.findById(id).orElseThrow(() -> new CustomMessageException("Purchase Order Not founded", "400"));
     }
 
     public CustomerTypeResponse checkCustomerType(CustomerType type, Long cid, String generalCustomer) throws Exception {

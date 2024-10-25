@@ -1,23 +1,20 @@
-package com.menglang.Clothing.shop.entity;
+package com.menglang.Clothing.shop.entity.base;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.menglang.Clothing.shop.entity.base.BaseEntity;
-import jakarta.persistence.*;
+import com.menglang.Clothing.shop.entity.ColorEntity;
+import com.menglang.Clothing.shop.entity.ProductEntity;
+import com.menglang.Clothing.shop.entity.SizeEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 
-
-@Builder
-@Getter
 @Setter
-@Entity
-@Table(name = "order_items")
-public class OrderItemsEntity extends BaseEntity<Long> {
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private OrderEntity order;
-
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@MappedSuperclass
+public class BaseItemDetails extends BaseAuditEntity<Long>{
     @ManyToOne
     @JoinColumn(name = "product_id",nullable = false)
     private ProductEntity product;
@@ -40,7 +37,4 @@ public class OrderItemsEntity extends BaseEntity<Long> {
 
     @Column(name = "discounted_percent")
     private int discountedPercent;
-
-
-
 }

@@ -1,23 +1,20 @@
-package com.menglang.Clothing.shop.entity;
+package com.menglang.Clothing.shop.entity.base;
 
-import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
+import com.menglang.Clothing.shop.entity.BranchEntity;
+import com.menglang.Clothing.shop.entity.CustomerEntity;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
 
-@Entity
-@Builder
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "order_tbl")
-public class OrderEntity extends BaseAuditEntity<Long> {
-
+@MappedSuperclass
+public class BaseOrder extends BaseAuditEntity<Long> {
     @ManyToOne
-    @JoinColumn(name = "branch_id", nullable = false)
+    @JoinColumn(name = "branch_id",nullable = false)
     private BranchEntity branch;
 
     @Column(name = "total_price")
@@ -27,10 +24,10 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     private int totalItem;
 
     @Column(name = "total_discounted_price")
-    private double discountedPrice;
+    private double totalDiscountedPrice;
 
     @Column(name = "total_discounted_percent")
-    private int discountedPercent;
+    private int totalDiscountedPercent;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "customer_type")
@@ -43,9 +40,4 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     @JoinColumn(name = "customer_id")
     private CustomerEntity customer;
 
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<OrderItemsEntity> orderItems;
-
-    private String address;
 }
