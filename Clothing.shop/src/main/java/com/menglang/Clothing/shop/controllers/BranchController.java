@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.controllers;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.branch.BranchRequest;
 import com.menglang.Clothing.shop.services.branch.BranchServiceImpl;
 import jakarta.validation.Valid;
@@ -21,25 +21,25 @@ public class BranchController {
     private final BranchServiceImpl branchService;
 
     @PostMapping
-    public ResponseEntity<ResponseErrorTemplate> create( @RequestBody BranchRequest data) throws Exception {
+    public ResponseEntity<ResponseTemplate> create(@RequestBody BranchRequest data) throws Exception {
         log.info("creating branch invoke ........................");
         return ResponseEntity.ok(branchService.create(data));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseErrorTemplate> update(@PathVariable("id") Long id, @Valid @RequestBody BranchRequest data) throws Exception {
+    public ResponseEntity<ResponseTemplate> update(@PathVariable("id") Long id, @Valid @RequestBody BranchRequest data) throws Exception {
         log.info("updating branch invoke ........................{}", id);
         return ResponseEntity.ok(branchService.update(id, data));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseErrorTemplate> delete(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<ResponseTemplate> delete(@PathVariable("id") Long id) throws Exception {
         log.info("delete branch invoke ........................{}", id);
         return ResponseEntity.ok(branchService.delete(id));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseErrorTemplate> get(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<ResponseTemplate> get(@PathVariable("id") Long id) throws Exception {
         log.info("getting branch invoke ........................{}", id);
         return ResponseEntity.ok(branchService.findBranchById(id));
     }

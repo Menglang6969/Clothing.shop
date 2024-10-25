@@ -3,22 +3,19 @@ package com.menglang.Clothing.shop.entity;
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Builder
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "customer_tbl")
 public class CustomerEntity extends BaseAuditEntity<Long> {
 
-    @Column(length = 40)
+    @Column(length = 40, nullable = false)
     private String name;
 
     @Column(length = 20)
@@ -27,7 +24,5 @@ public class CustomerEntity extends BaseAuditEntity<Long> {
     @Column(length = 100)
     private String address;
 
-    @OneToOne(mappedBy = "customer")
-    private PurchaseOrderEntity cart;
 
 }

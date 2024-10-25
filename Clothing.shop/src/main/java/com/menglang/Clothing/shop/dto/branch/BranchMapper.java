@@ -2,6 +2,7 @@ package com.menglang.Clothing.shop.dto.branch;
 
 import com.menglang.Clothing.shop.entity.BranchEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")

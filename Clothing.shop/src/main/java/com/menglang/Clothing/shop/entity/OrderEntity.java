@@ -1,7 +1,7 @@
 package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
-import com.menglang.Clothing.shop.entity.enums.OrderStatus;
+import com.menglang.Clothing.shop.entity.enums.PurchaseStatus;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,10 +34,6 @@ public class OrderEntity extends BaseAuditEntity<Long> {
 
     private Integer discount;
 
-    @Column(name = "order_status")
-    @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
-
     private int totalItems;
 
     @ManyToOne()
@@ -46,13 +42,8 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     @ManyToOne()
     private CustomerEntity customer;
 
-//    @Embedded
-//    private PaymentDetails paymentDetails;
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItemsEntity> orderItems;
-
-
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL,fetch = FetchType.LAZY,optional = false)
     private AddressEntity address;

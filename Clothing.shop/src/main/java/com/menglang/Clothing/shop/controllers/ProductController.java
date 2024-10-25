@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.controllers;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.pageResponse.BaseResponse;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
@@ -23,7 +23,7 @@ public class ProductController {
 
 
     @PostMapping("/product")
-    public ResponseEntity<ResponseErrorTemplate> create(@RequestBody ProductRequest data){
+    public ResponseEntity<ResponseTemplate> create(@RequestBody ProductRequest data){
         log.info(" invoke creating product .............");
         return ResponseEntity.ok(productService.create(data));
     }
@@ -60,13 +60,13 @@ public class ProductController {
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<ResponseErrorTemplate> findProductById(@PathVariable("id") Long productId) throws Exception {
+    public ResponseEntity<ResponseTemplate> findProductById(@PathVariable("id") Long productId) throws Exception {
         return ResponseEntity.ok(productService.getProductById(productId));
     }
 
     @PutMapping("/product/{id}")
-    public ResponseEntity<ResponseErrorTemplate> updateProduct(@PathVariable("id") Long productId,
-                                                               @RequestBody ProductRequest productRequest)throws Exception{
+    public ResponseEntity<ResponseTemplate> updateProduct(@PathVariable("id") Long productId,
+                                                          @RequestBody ProductRequest productRequest)throws Exception{
         return  ResponseEntity.ok(productService.updateProduct(productId,productRequest));
     }
 

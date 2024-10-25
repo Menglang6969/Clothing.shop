@@ -35,7 +35,7 @@ public class PurchaseItemsServiceImpl implements PurchaseItemsService {
             cartItem.setQuantity(1);
             cartItem.setPrice(11.1);
             //cartItem.setPrice(cartItem.getProduct().getPrice() * cartItem.getQuantity());
-            cartItem.setDiscountedPrice(cartItem.getProduct().getDiscountedPrice());
+            cartItem.setDiscountedPrice(Double.valueOf(cartItem.getProduct().getDiscountedPrice()));
             return purchaseItemsRepository.save(cartItem);
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
@@ -49,7 +49,7 @@ public class PurchaseItemsServiceImpl implements PurchaseItemsService {
             PurchaseItemEntity item = findCartItemById(id);
             item.setQuantity(cartItem.getQuantity());
             item.setPrice(item.getPrice());
-            item.setDiscountedPrice(item.getProduct().getDiscountedPrice());
+            item.setDiscountedPrice(Double.valueOf(item.getProduct().getDiscountedPrice()));
 
             return purchaseItemsRepository.save(item);
         } catch (Exception e) {

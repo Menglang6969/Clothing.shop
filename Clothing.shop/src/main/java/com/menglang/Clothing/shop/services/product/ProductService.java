@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.product;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
 import com.menglang.Clothing.shop.entity.ProductEntity;
@@ -9,13 +9,13 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ProductService {
-      ResponseErrorTemplate create(ProductRequest product) throws Exception;
+      ResponseTemplate create(ProductRequest product) throws Exception;
      List<ProductEntity> getProducts() throws Exception;
 
-     ResponseErrorTemplate getProductById(Long id) throws Exception;
+     ResponseTemplate getProductById(Long id) throws Exception;
 
-    ResponseErrorTemplate updateProduct(Long id, ProductRequest product) throws Exception;
-     ResponseErrorTemplate deleteProduct(Long id) throws Exception;
+    ResponseTemplate updateProduct(Long id, ProductRequest product) throws Exception;
+     ResponseTemplate deleteProduct(Long id) throws Exception;
      List<ProductEntity> getProductsByCategory(String category) throws Exception;
     List<ProductEntity> searchProduct(String query) throws Exception;
      Page<BasePageResponse> getAllProducts(

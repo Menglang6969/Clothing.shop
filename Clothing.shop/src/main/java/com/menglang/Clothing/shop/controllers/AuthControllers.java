@@ -1,7 +1,7 @@
 package com.menglang.Clothing.shop.controllers;
 
 import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.user.UserRequest;
 import com.menglang.Clothing.shop.services.user.UserServiceImp;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +21,13 @@ public class AuthControllers {
     private final UserServiceImp user;
 
     @PostMapping("/accounts/register")
-    public ResponseEntity<ResponseErrorTemplate> register(@RequestBody UserRequest userRequest) throws Exception {
+    public ResponseEntity<ResponseTemplate> register(@RequestBody UserRequest userRequest) throws Exception {
         log.info("Intercept register new user with req: {}",userRequest);
         return ResponseEntity.ok(user.create(userRequest));
     }
 
     @PostMapping("/accounts/login")
-    public ResponseEntity<ResponseErrorTemplate> authenticate(@RequestBody AuthenticationRequest data) throws Exception {
+    public ResponseEntity<ResponseTemplate> authenticate(@RequestBody AuthenticationRequest data) throws Exception {
         log.info("login user with req: {}",data);
         return ResponseEntity.ok(user.authenticate(data));
     }

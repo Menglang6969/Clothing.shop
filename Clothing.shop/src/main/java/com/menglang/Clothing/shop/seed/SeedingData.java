@@ -1,8 +1,10 @@
 package com.menglang.Clothing.shop.seed;
 
+import com.menglang.Clothing.shop.dto.customer.CustomerRequest;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.*;
+import com.menglang.Clothing.shop.services.customer.CustomerService;
 import com.menglang.Clothing.shop.services.stock.StockService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class SeedingData {
     private final ProductRepository productRepository;
     private final BranchRepository branchRepository;
     private final StockService stockService;
+    private final CustomerRepository customerService;
 
     @PostConstruct
     private void seeding() throws Exception {
@@ -36,6 +39,16 @@ public class SeedingData {
         seedProduct();
         seedBranch();
         seedProductStock();
+        seedCustomer();
+    }
+
+    private void seedCustomer(){
+        log.info("invoke seeding customer..................................");
+        CustomerEntity c1=new CustomerEntity("menglang","012225566","kandal");
+        CustomerEntity c2=new CustomerEntity("jinglong","012225566","kandal");
+        CustomerEntity c3=new CustomerEntity("mengsorng","012225566","kandal");
+        List<CustomerEntity> customers=List.of(c1,c2,c3);
+        customerService.saveAll(customers);
     }
 
     private void seedBranch(){

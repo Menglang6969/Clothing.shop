@@ -1,20 +1,22 @@
 package com.menglang.Clothing.shop.services.purchase.purchase;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
+import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
 import com.menglang.Clothing.shop.dto.purchase.purchaseItems.ItemRequest;
+import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderMapper;
 import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderRequest;
-import com.menglang.Clothing.shop.entity.CustomerEntity;
-import com.menglang.Clothing.shop.entity.ProductEntity;
-import com.menglang.Clothing.shop.entity.PurchaseItemEntity;
-import com.menglang.Clothing.shop.entity.PurchaseOrderEntity;
+import com.menglang.Clothing.shop.entity.*;
+import com.menglang.Clothing.shop.entity.base.BaseEntity;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
+import com.menglang.Clothing.shop.entity.enums.PurchaseStatus;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.CustomerRepository;
 import com.menglang.Clothing.shop.repositories.PurchaseItemsRepository;
 import com.menglang.Clothing.shop.repositories.PurchaseOrderRepository;
-import com.menglang.Clothing.shop.services.product.ProductServiceImpl;
-import com.menglang.Clothing.shop.services.purchase.purchaseItems.PurchaseItemsService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,132 +30,196 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
+    private static final Logger log = LoggerFactory.getLogger(PurchaseOrderServiceImpl.class);
     @Autowired
     private final PurchaseItemsRepository purchaseItemsRepository;
     @Autowired
     private final CustomerRepository customerRepository;
     @Autowired
+    private final GetEntitiesById getEntity;
+    @Autowired
+    private final PurchaseOrderMapper purchaseOrderMapper;
+    @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
-    @Autowired
-    private PurchaseItemsService purchaseItemsService;
-    @Autowired
-    private ProductServiceImpl productService;
+
 
     @Override
     @Transactional()
-    public ResponseErrorTemplate createPurchase(PurchaseOrderRequest data) throws Exception {
-        PurchaseOrderEntity purchaseOrder=extractPurchaseItems(data);
-        return null;
+    public ResponseTemplate createPurchase(PurchaseOrderRequest data) throws Exception {
+        log.info("invoke create purchase..............");
+        PurchaseOrderEntity purchaseOrder = extractPurchaseItems(data);
+
+        PurchaseOrderEntity savedPurchase = purchaseOrderRepository.save(purchaseOrder);
+        Set<PurchaseItemEntity> items = purchaseOrder.getPurchaseItems();
+        purchaseItemsRepository.saveAll(items);
+        return ResponseTemplate.builder()
+                .object(purchaseOrderMapper.toPurchaseOrderDTO(savedPurchase))
+                .code("201")
+                .message("created purchase successful")
+                .build();
     }
 
     @Override
-    public String editPurchase(Long userId, ItemRequest request) throws Exception {
-//        PurchaseOrderEntity cart = purchaseOrderRepository.findByUserId(userId);
-        //      ProductEntity product = productService.findProductById(request.productId());
-//        PurchaseItemEntity isPresent = purchaseItemsService.isCartItemExist(cart, product, request.size());
-//
-//        if (isPresent == null) {
-//            PurchaseItemEntity cartItem = PurchaseItemEntity.builder()
-//                    .product(product)
-//                    .items(cart)
-//                    .quantity(request.quantity())
-//                    .price(Double.valueOf(request.price()))
-//                    .size(request.size())
-//                    .build();
-//
-//            PurchaseItemEntity createdCartItem = purchaseItemsService.addItem(cartItem);
-//            cart.getCartItems().add(createdCartItem);//add new item to previous cartItems of carts
-//        }
-        return "Item Add to Cart";
+    @Transactional
+    public ResponseTemplate editPurchase(Long id, PurchaseOrderRequest data) throws Exception {
+       try{
+           log.info("invoke update purchase...................");
+           PurchaseOrderEntity updatePurchase = this.findById(id);
+           CustomerTypeResponse customerRes=checkCustomerType(data.customerType(),data.customer(),data.generalCustomer());
+           updatePurchase.setCustomer(customerRes.getCustomer());
+           updatePurchase.setBranch(getEntity.findBranchById(data.branch()));
+           updatePurchase.setGeneralCustomer(customerRes.getGeneralCustomer());
+           updatePurchase.setTotalDiscountedPrice(data.discountedPrice());
+           updatePurchase.setTotalDiscountedPercent(data.discountedPercent());
+
+           updatePurchase.getPurchaseItems().clear();
+
+           Set<PurchaseItemEntity> itemEntitySet = getItemsPurchase(data.items(), updatePurchase);
+
+           updatePurchase.setTotalItem(itemEntitySet.size());
+           double totalPrice = calculateTotalPrice(itemEntitySet);
+           totalPrice = calculateDiscountPrice(totalPrice, data.discountedPercent(), data.discountedPrice());
+           updatePurchase.getPurchaseItems().addAll(itemEntitySet);
+           updatePurchase.setTotalPrice(totalPrice);
+
+           PurchaseOrderEntity savedPurchase = purchaseOrderRepository.save(updatePurchase);
+           for(PurchaseItemEntity item:getItemsPurchase(data.items(), updatePurchase)){
+               assert item != null;
+               log.info("-----item loop: {} :{}", item.getSize().getId()+":"+item.getSize().getName(),item.getColor().getName()+":"+item.getColor().getName());
+           }
+
+//           purchaseItemsRepository.saveAll(getItemsPurchase(data.items(), updatePurchase));
+           return ResponseTemplate.builder()
+                   .object(purchaseOrderMapper.toPurchaseOrderDTO(savedPurchase))
+                   .code("201")
+                   .message("update purchase successful")
+                   .build();
+       }catch (Exception e){
+           throw new CustomMessageException(e.getMessage(),"400");
+       }
     }
 
     @Override
-    public PurchaseOrderEntity findUserCart(Long userId) throws Exception {
-//        try {
-//            PurchaseOrderEntity cart = purchaseOrderRepository.findByUserId(userId);
-//            double totalPrice = (double) 0;
-//            int totalDiscountPrice = 0;
-//            int totalItem = 0;
-//
-//
-//            for (PurchaseItemEntity cartItem : cart.getCartItems()) {
-//                totalPrice += cartItem.getPrice() * cartItem.getQuantity();
-//                totalDiscountPrice += cartItem.getDiscountedPrice();
-//                totalItem += cartItem.getQuantity();
-//            }
-//
-//            cart.setDiscount(totalDiscountPrice);
-//            cart.setTotalDiscountedPrice(totalDiscountPrice);
-//            cart.setTotalItem(totalItem);
-//            cart.setTotalPrice(totalPrice);
-//
-//            return purchaseOrderRepository.save(cart);
-//        } catch (Exception e) {
-//            throw new CustomMessageException(e.getMessage(), "500");
-//        }
+    public ResponseTemplate dropPurchase(Long id) throws Exception {
         return null;
-
     }
+
 
     private PurchaseOrderEntity extractPurchaseItems(PurchaseOrderRequest data) throws Exception {
-        Set<PurchaseItemEntity> itemEntitySet = getItemsPurchase(data.items());
 
-        CustomerEntity customer = null;
-        String general_customer = data.generalCustomer();
-        if (data.customerType().equals(CustomerType.SPECIAL)) {
-            customer = findCustomerById(data.customer());
-            general_customer = null;
+        log.info("invoke exact........................ ");
+        PurchaseOrderEntity purchaseOrder = new PurchaseOrderEntity();
+
+        try {
+            CustomerTypeResponse customerRes=checkCustomerType(data.customerType(),data.customer(),data.generalCustomer());
+            purchaseOrder.setBranch(getEntity.findBranchById(data.branch()));
+            purchaseOrder.setCustomer(customerRes.getCustomer());
+            purchaseOrder.setGeneralCustomer(customerRes.getGeneralCustomer());
+
+            purchaseOrder.setCustomerType(data.customerType());
+            purchaseOrder.setTotalDiscountedPercent(data.discountedPercent());
+            purchaseOrder.setTotalDiscountedPrice(data.discountedPrice());
+            purchaseOrder.setPurchaseStatus(PurchaseStatus.IN_PROGRESS);
+            Set<PurchaseItemEntity> itemEntitySet = getItemsPurchase(data.items(), purchaseOrder);
+            purchaseOrder.setTotalItem(itemEntitySet.size());
+            double totalPrice = calculateTotalPrice(itemEntitySet);
+            totalPrice = calculateDiscountPrice(totalPrice, purchaseOrder.getTotalDiscountedPercent(), purchaseOrder.getTotalDiscountedPrice());
+            purchaseOrder.setPurchaseItems(itemEntitySet);
+            purchaseOrder.setTotalPrice(totalPrice);
+
+            return purchaseOrder;
+        } catch (Exception e) {
+            throw new CustomMessageException(e.getMessage(), "400");
         }
 
-
-
-        //To-do calculate total price
-        PurchaseOrderEntity purchaseOrder = PurchaseOrderEntity.builder()
-                .generalCustomer(data.generalCustomer())
-                .purchaseItems(itemEntitySet)
-                .discount(data.discount())
-                .customerType(data.customerType())
-                .customer(customer)
-                .generalCustomer(general_customer)
-                .discount(data.discount())
-                .totalItem(1)
-                .totalDiscountedPrice(1)
-                .totalPrice(1)
-                .build();
-        return purchaseOrder;
     }
 
-    private PurchaseItemEntity validatePurchaseItems(ItemRequest item) throws Exception {
+
+    private Set<PurchaseItemEntity> getItemsPurchase(List<ItemRequest> data, PurchaseOrderEntity purchaseOrder) throws Exception {
+        log.info("invoke getItems purchase................");
+        List<PurchaseItemEntity> order_items = new ArrayList<>();
+        for (ItemRequest item : data) {
+            PurchaseItemEntity order_item = validatePurchaseItems(item, purchaseOrder);
+            log.info("...color_id {}, validate {} ", item.color(),order_item.getColor().getName());
+            order_items.add(order_item);
+        }
+        for(PurchaseItemEntity item:order_items){
+            log.info("-----before response item colorId: {} :{}",item.getColor().getId(),item.getColor().getName());
+        }
+        return new HashSet<>(order_items);
+    }
+
+
+    private PurchaseItemEntity validatePurchaseItems(ItemRequest item, PurchaseOrderEntity purchaseOrder) throws Exception {
+        log.info(" validate purchase Item..........................{}",item.color());
         try {
-            ProductEntity product = validateProductInfo(item);
-            return PurchaseItemEntity.builder().color(item.color()).size(item.size()).price(item.price()).discountedPrice(item.discountedPrice()).discounted_percent(item.discountedPercent()).quantity(item.quantity()).product(product).build();
+            ProductEntity product = getEntity.findProductById(item.productId());
+            ColorEntity color = getEntity.findColorById(item.color());
+            SizeEntity size = getEntity.findSizeById(item.size());
+            log.info(" get color Item..........................{}:{}",color.getId(),color.getName());
+            return PurchaseItemEntity.builder()
+                    .color(color)
+                    .size(size)
+                    .price(item.price())
+                    .discountedPrice((double) item.discountedPrice())
+                    .discountedPercent(item.discountedPercent())
+                    .quantity(item.quantity())
+                    .purchase(purchaseOrder)
+                    .product(product)
+                    .build();
 
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "400");
         }
     }
 
-    private ProductEntity validateProductInfo(ItemRequest item) throws Exception {
-        try {
-            ProductEntity product = productService.findProductById(item.productId());
-            // To do validate price & quantity
-            return null;
-        } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+    private Double calculateTotalPrice(Set<PurchaseItemEntity> items) {
+        log.info(" calculate price .........................");
+        double totalPrice = 0.0;
+        for (PurchaseItemEntity item : items) {
+            totalPrice += calculateDiscountWithQty(
+                    item.getPrice(),
+                    item.getQuantity(),
+                    item.getDiscountedPercent(),
+                    item.getDiscountedPrice());
         }
+        log.info(" calculate price .........................{}", totalPrice);
+        return totalPrice;
     }
+
 
     private CustomerEntity findCustomerById(Long customerId) throws Exception {
         return customerRepository.findById(customerId).orElseThrow(() -> new CustomMessageException("Customer Not found", "400"));
     }
 
-    private Set<PurchaseItemEntity> getItemsPurchase(List<ItemRequest> data) throws Exception {
-        List<PurchaseItemEntity> order_items = new ArrayList<>();
-        for (ItemRequest item : data) {
-            PurchaseItemEntity order_item = validatePurchaseItems(item);
-            order_items.add(order_item);
-        }
-        return new HashSet<>(purchaseItemsRepository.saveAll(order_items));
+    private double calculateDiscountPrice(double price, int discountedPercent, double discountedPrice) {
+        // Apply discounted price if not null
+        price = discountedPrice != 0.0 ? price - discountedPrice : price;
+        // Apply discount percentage if not null
+        price -= (price * discountedPercent) / 100.0;
+        log.info(" price: {}", price);
+        return price;
     }
 
+    private double calculateDiscountWithQty(double price, int qty, int discountedPercent, double discountedPrice) {
+        return calculateDiscountPrice(price, discountedPercent, discountedPrice) * qty;
+    }
+
+    private PurchaseOrderEntity findById(Long id) throws Exception {
+        return this.purchaseOrderRepository.findById(id).orElseThrow(() -> new CustomMessageException("Purchase Order Not founded", "400"));
+    }
+
+    private CustomerTypeResponse checkCustomerType(CustomerType type,Long cid,String generalCustomer) throws Exception{
+        CustomerEntity customer = null;
+        String general_customer =generalCustomer;
+        if (type.equals(CustomerType.SPECIAL)) {
+            customer = findCustomerById(cid);
+            general_customer = null;
+        }
+        return CustomerTypeResponse.builder()
+                .generalCustomer(generalCustomer)
+                .customer(customer)
+                .customerType(type)
+                .build();
+    }
 }

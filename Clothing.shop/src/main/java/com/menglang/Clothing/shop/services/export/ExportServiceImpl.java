@@ -1,7 +1,7 @@
 package com.menglang.Clothing.shop.services.export;
 
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.export.ExportMapper;
 import com.menglang.Clothing.shop.dto.export.ExportRequest;
 import com.menglang.Clothing.shop.dto.export.details.ExportDetailsRequest;
@@ -46,7 +46,7 @@ public class ExportServiceImpl implements ExportService {
 
     @Override
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    public ResponseErrorTemplate makeExport(ExportRequest request) throws Exception {
+    public ResponseTemplate makeExport(ExportRequest request) throws Exception {
         log.info("invoke create export..................");
         try {
             BranchEntity fromBranch = getEntity.findBranchById(request.fromBranch());
@@ -67,7 +67,7 @@ public class ExportServiceImpl implements ExportService {
             exportEntity.setExportDetails(detailsSet);
             ExportEntity exportSaved = exportRepository.save(exportEntity);
 
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .message("import successful")
                     .code("201")
                     .object(exportMapper.toExportDTO(exportSaved))
@@ -79,7 +79,7 @@ public class ExportServiceImpl implements ExportService {
     }
 
     @Override
-    public ResponseErrorTemplate verifyExport(Long id) throws Exception {
+    public ResponseTemplate verifyExport(Long id) throws Exception {
         log.info("invoke verify export.....................");
         try {
             ExportEntity exportEntity = getExportById(id);
@@ -88,7 +88,7 @@ public class ExportServiceImpl implements ExportService {
             BranchEntity toBranch = exportEntity.getToBranch();
             List<StockEntity> stocksToUpdate = mapStockQuantity(fromBranch, toBranch, exportDetails);
             stockRepository.saveAll(stocksToUpdate);
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .code("200")
                     .message("Verify Stock successful")
                     .build();
@@ -99,9 +99,9 @@ public class ExportServiceImpl implements ExportService {
     }
 
     @Override
-    public ResponseErrorTemplate getExport(Long id) throws Exception {
+    public ResponseTemplate getExport(Long id) throws Exception {
         ExportEntity exportEntity = getExportById(id);
-        return ResponseErrorTemplate.builder()
+        return ResponseTemplate.builder()
                 .object(exportMapper.toExportDTO(exportEntity))
                 .code("200")
                 .message("successful")
@@ -109,11 +109,11 @@ public class ExportServiceImpl implements ExportService {
     }
 
     @Override
-    public ResponseErrorTemplate deleteExport(Long id) throws Exception {
+    public ResponseTemplate deleteExport(Long id) throws Exception {
         try {
             ExportEntity exportData = this.getExportById(id);
             this.exportRepository.delete(exportData);
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .message("import was Drop successful")
                     .code("200")
                     .object("{}")

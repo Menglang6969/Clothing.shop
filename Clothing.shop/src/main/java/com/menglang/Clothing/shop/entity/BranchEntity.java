@@ -23,9 +23,9 @@ public class BranchEntity extends BaseAuditEntity<Long> {
 
     private String description;
 
-    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
-    private Set<StockEntity> stocks = new HashSet<>();
+//    @OneToMany(mappedBy = "branch", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @Builder.Default
+//    private Set<StockEntity> stocks = new HashSet<>();
 
 
 }

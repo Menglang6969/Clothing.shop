@@ -5,7 +5,6 @@ import com.menglang.Clothing.shop.dto.auth.AuthenticationRequest;
 import com.menglang.Clothing.shop.dto.auth.RegisterResponse;
 import com.menglang.Clothing.shop.dto.user.UserRequest;
 import com.menglang.Clothing.shop.dto.user.UserResponse;
-import com.menglang.Clothing.shop.entity.PurchaseOrderEntity;
 import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
@@ -56,7 +55,7 @@ public class UserServiceImp implements UserInterface {
     private final PurchaseOrderRepository purchaseOrderRepository;
 
     @Override
-    public ResponseErrorTemplate create(UserRequest data) {
+    public ResponseTemplate create(UserRequest data) {
         this.userRequestValidate(data);
 
         List<RoleEntity> roles=roleRepository.findAllByNameIn(data.roles());
@@ -73,11 +72,8 @@ public class UserServiceImp implements UserInterface {
        user.setCreatedAt(new Date());
 
         try {
-            UserEntity saveUser=userRepository.save(user);
-            PurchaseOrderEntity cart= PurchaseOrderEntity.builder()
-                    .user(saveUser)
-                    .build();
-            purchaseOrderRepository.save(cart);
+           userRepository.save(user);
+
 
         } catch (Exception e) {
             throw CustomMessageException.builder().message(e.getMessage()).code(String.valueOf(HttpStatus.UNAUTHORIZED.value())).build();
@@ -100,12 +96,12 @@ public class UserServiceImp implements UserInterface {
         );
 
 
-        return new ResponseErrorTemplate("Successful","201",authRes);
+        return new ResponseTemplate("Successful","201",authRes);
 
     }
 
     @Override
-    public ResponseErrorTemplate authenticate(AuthenticationRequest data){
+    public ResponseTemplate authenticate(AuthenticationRequest data){
 
         log.info(" authentication signIn Res: {}", data.username());
         try{
@@ -136,9 +132,9 @@ public class UserServiceImp implements UserInterface {
                     refreshToken
             );
 
-            return new ResponseErrorTemplate("Success","200",authRes);
+            return new ResponseTemplate("Success","200",authRes);
         }catch (Exception e){
-            return new ResponseErrorTemplate(e.getLocalizedMessage(),"400",e.getMessage());
+            return new ResponseTemplate(e.getLocalizedMessage(),"400",e.getMessage());
         }
 
 
@@ -146,24 +142,24 @@ public class UserServiceImp implements UserInterface {
     }
 
     @Override
-    public ResponseErrorTemplate findById(Long id) {
+    public ResponseTemplate findById(Long id) {
         Optional<UserEntity> user = userRepository.findById(id);
         var msg="User not found";
         return user.map(this::userMapper)
-                .orElse(new ResponseErrorTemplate(msg,"404", new Object()));
+                .orElse(new ResponseTemplate(msg,"404", new Object()));
     }
 
     @Override
-    public ResponseErrorTemplate findByUsername(String username) {
+    public ResponseTemplate findByUsername(String username) {
         Optional<UserEntity> user=userRepository.findByUsername(username);
         if(user.isPresent()) {
             return this.userMapper(user.get());
         }
 
-        return new ResponseErrorTemplate("Not found",String.valueOf(HttpStatus.NOT_FOUND.value()),new Object());
+        return new ResponseTemplate("Not found",String.valueOf(HttpStatus.NOT_FOUND.value()),new Object());
     }
 
-    public ResponseErrorTemplate userMapper(UserEntity user) {
+    public ResponseTemplate userMapper(UserEntity user) {
         UserResponse userResponse=new UserResponse(
                 user.getUsername(),
                 user.getPassword(),
@@ -173,7 +169,7 @@ public class UserServiceImp implements UserInterface {
                 user.getCreatedAt()
         );
 
-        return new ResponseErrorTemplate("Successful","200",userResponse);
+        return new ResponseTemplate("Successful","200",userResponse);
     }
 
     private void userRequestValidate(UserRequest userRequest) {

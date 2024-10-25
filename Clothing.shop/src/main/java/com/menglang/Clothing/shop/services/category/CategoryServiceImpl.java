@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.category;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.category.CategoryRequest;
 import com.menglang.Clothing.shop.entity.CategoryEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
@@ -20,7 +20,7 @@ public class CategoryServiceImpl implements CategoryInterface {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public ResponseErrorTemplate create(CategoryRequest categoryRequest) {
+    public ResponseTemplate create(CategoryRequest categoryRequest) {
         try {
             if(categoryRepository.existsByName(categoryRequest.name())){
                 throw new CustomMessageException( "Category name already exists: ", String.valueOf(HttpStatus.CONFLICT.value()));
@@ -36,7 +36,7 @@ public class CategoryServiceImpl implements CategoryInterface {
 
             categoryRepository.save(category);
 
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .message("Category is created")
                     .code("201")
                     .object(category)
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryInterface {
     }
 
     @Override
-    public ResponseErrorTemplate update(Long id, CategoryRequest categoryRequest) {
+    public ResponseTemplate update(Long id, CategoryRequest categoryRequest) {
 
         if (categoryRepository.existsByNameAndIdNot(categoryRequest.name(), id)) {
             throw new CustomMessageException( "Category name already exists: ", String.valueOf(HttpStatus.CONFLICT.value()));
@@ -68,7 +68,7 @@ public class CategoryServiceImpl implements CategoryInterface {
                 log.info("update category entity: {} {}", existCategory.getParentId(), isParent);
                 categoryRepository.save(existCategory);
 
-                return ResponseErrorTemplate.builder()
+                return ResponseTemplate.builder()
                         .message("Category is created")
                         .code("201")
                         .object(existCategory)
@@ -82,13 +82,13 @@ public class CategoryServiceImpl implements CategoryInterface {
     }
 
     @Override
-    public ResponseErrorTemplate delete(Long id) {
+    public ResponseTemplate delete(Long id) {
 
         try{
             boolean category=categoryRepository.existsById(id);
             if(category){
                 categoryRepository.deleteById(id);
-                return ResponseErrorTemplate.builder()
+                return ResponseTemplate.builder()
                         .message("Category is deleted successful")
                         .code("200")
                         .build();
@@ -102,14 +102,14 @@ public class CategoryServiceImpl implements CategoryInterface {
     }
 
     @Override
-    public ResponseErrorTemplate getAll() {
+    public ResponseTemplate getAll() {
         return null;
     }
 
     @Override
-    public ResponseErrorTemplate findOne(Long id) {
+    public ResponseTemplate findOne(Long id) {
         CategoryEntity category=findCategoryById(id);
-        return ResponseErrorTemplate.builder()
+        return ResponseTemplate.builder()
                 .object(category)
                 .code("200")
                 .message("category founded")

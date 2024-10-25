@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.branch;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.branch.BranchMapper;
 import com.menglang.Clothing.shop.dto.branch.BranchRequest;
 import com.menglang.Clothing.shop.entity.BranchEntity;
@@ -21,7 +21,7 @@ public class BranchServiceImpl implements BranchService {
     private final BranchMapper branchMapper;
 
     @Override
-    public ResponseErrorTemplate create(BranchRequest data) throws Exception {
+    public ResponseTemplate create(BranchRequest data) throws Exception {
       try{
           BranchEntity branch=BranchEntity.builder()
                   .name(data.name())
@@ -29,7 +29,7 @@ public class BranchServiceImpl implements BranchService {
                   .description(data.description())
                   .build();
           BranchEntity resBranch=branchRepository.save(branch);
-          return ResponseErrorTemplate.builder()
+          return ResponseTemplate.builder()
                   .object(branchMapper.toBranchDTO(branch))
                   .code("201")
                   .message("created successful")
@@ -40,14 +40,14 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public ResponseErrorTemplate update(Long id, BranchRequest data) throws Exception {
+    public ResponseTemplate update(Long id, BranchRequest data) throws Exception {
         try {
             BranchEntity branch=findById(id);
             branch.setAddress(data.address());
             branch.setName(data.name());
             branch.setDescription(data.description());
             BranchEntity updatedBranch= branchRepository.save(branch);
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .object(branchMapper.toBranchDTO(branch))
                     .code("200" )
                     .message("updated successful")
@@ -58,11 +58,11 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public ResponseErrorTemplate delete(Long id) throws Exception {
+    public ResponseTemplate delete(Long id) throws Exception {
        try {
            BranchEntity branch=findById(id);
            branchRepository.deleteById(id);
-           return ResponseErrorTemplate.builder()
+           return ResponseTemplate.builder()
                    .object(branchMapper.toBranchDTO(branch))
                    .message("Branch deleted successful")
                    .code("200")
@@ -73,9 +73,9 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public ResponseErrorTemplate findBranchById(Long id) throws Exception {
+    public ResponseTemplate findBranchById(Long id) throws Exception {
         BranchEntity branch=findById(id);
-        return ResponseErrorTemplate.builder()
+        return ResponseTemplate.builder()
                 .code("200")
                 .message("Branch found")
                 .object(branchMapper.toBranchDTO(branch))

@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.order;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.entity.AddressEntity;
 import com.menglang.Clothing.shop.entity.OrderEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public ResponseErrorTemplate createOrder(UserEntity user, AddressEntity shipping) throws Exception {
+    public ResponseTemplate createOrder(UserEntity user, AddressEntity shipping) throws Exception {
         return null;
     }
 

@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.product;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.dto.product.ProductMapper;
 import com.menglang.Clothing.shop.dto.product.ProductRequest;
@@ -50,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ResponseErrorTemplate create(ProductRequest product) {
+    public ResponseTemplate create(ProductRequest product) {
         log.info("sizes: {}", product.sizes());
         try {
 
@@ -63,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
            stockService.addProductStocks(colorsSet,productSizes,resProduct);
             ProductResponse productDto = productMapper.toProductDTO(resProduct);
 
-            return ResponseErrorTemplate.builder().message("Product Created Successful").code("201").object(productDto).build();
+            return ResponseTemplate.builder().message("Product Created Successful").code("201").object(productDto).build();
         } catch (Exception e) {
             log.info("product error: {}", e.getLocalizedMessage());
             throw new CustomMessageException(e.getMessage(), "500");
@@ -76,10 +76,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseErrorTemplate getProductById(Long id) {
+    public ResponseTemplate getProductById(Long id) {
         ProductEntity product = findProductById(id);
         ProductResponse productResponse = productMapper.toProductDTO(product);
-        return ResponseErrorTemplate.builder().message("successful").code("200").object(productResponse).build();
+        return ResponseTemplate.builder().message("successful").code("200").object(productResponse).build();
     }
 
     public ProductEntity findProductById(Long id) {
@@ -87,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseErrorTemplate updateProduct(Long id, ProductRequest data) throws Exception {
+    public ResponseTemplate updateProduct(Long id, ProductRequest data) throws Exception {
         ProductEntity product = findProductById(id);
 
         product.setBaseCost(data.baseCost());
@@ -102,7 +102,7 @@ public class ProductServiceImpl implements ProductService {
         try {
             ProductEntity updatedProduct = this.productRepository.save(product);
             ProductResponse productResponse = productMapper.toProductDTO(updatedProduct);
-            return ResponseErrorTemplate.builder().message("Product Updated Successful").code("200").object(productResponse).build();
+            return ResponseTemplate.builder().message("Product Updated Successful").code("200").object(productResponse).build();
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
         }
@@ -110,13 +110,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ResponseErrorTemplate deleteProduct(Long id) {
+    public ResponseTemplate deleteProduct(Long id) {
 
         ProductEntity product = findProductById(id);
         product.getSizes().clear();
         try {
             this.productRepository.delete(product);
-            return ResponseErrorTemplate.builder().message("Product Deleted Successful").code("200").build();
+            return ResponseTemplate.builder().message("Product Deleted Successful").code("200").build();
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "500");
         }

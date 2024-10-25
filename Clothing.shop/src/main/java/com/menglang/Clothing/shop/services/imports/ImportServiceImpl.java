@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.imports;
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.imports.ImportMapper;
 import com.menglang.Clothing.shop.dto.imports.ImportRequest;
 import com.menglang.Clothing.shop.dto.imports.details.ImportDetailsRequest;
@@ -45,7 +45,7 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     @Transactional()
-    public ResponseErrorTemplate makeImport(ImportRequest request) throws RuntimeException {
+    public ResponseTemplate makeImport(ImportRequest request) throws RuntimeException {
         try {
             BranchEntity branch = branchRepository.findById(request.branch()).orElseThrow(() -> new CustomMessageException("Branch Not found", "400"));
             ImportEntity importEntity = ImportEntity.builder()
@@ -63,7 +63,7 @@ public class ImportServiceImpl implements ImportService {
             importEntity.setImportDetails(detailsSet);
             ImportEntity importSaved = importRepository.save(importEntity);
 
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .message("import successful")
                     .code("201")
                     .object(importMapper.toImportDTO(importSaved))
@@ -77,7 +77,7 @@ public class ImportServiceImpl implements ImportService {
     //verity to update stock
     @Override
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
-    public ResponseErrorTemplate verifyImport(Long id) throws Exception {
+    public ResponseTemplate verifyImport(Long id) throws Exception {
 
         try {
             ImportEntity importEntity = getImportById(id);
@@ -94,7 +94,7 @@ public class ImportServiceImpl implements ImportService {
                         .build();
                 stockService.updateStock(id, stock, detail.getImportCost());
             }
-            return ResponseErrorTemplate.builder()
+            return ResponseTemplate.builder()
                     .code("200")
                     .message("Products has been updated Stock successful")
                     .build();
@@ -104,9 +104,9 @@ public class ImportServiceImpl implements ImportService {
     }
 
     @Override
-    public ResponseErrorTemplate getImport(Long id) throws Exception {
+    public ResponseTemplate getImport(Long id) throws Exception {
         ImportEntity importEntity = getImportById(id);
-        return ResponseErrorTemplate.builder()
+        return ResponseTemplate.builder()
                 .object(importMapper.toImportDTO(importEntity))
                 .code("200")
                 .message("successful")
@@ -114,11 +114,11 @@ public class ImportServiceImpl implements ImportService {
     }
 
     @Override
-    public ResponseErrorTemplate deleteImport(Long id) throws Exception {
+    public ResponseTemplate deleteImport(Long id) throws Exception {
        try{
            ImportEntity importData=this.getImportById(id);
            this.importRepository.delete(importData);
-           return ResponseErrorTemplate.builder()
+           return ResponseTemplate.builder()
                    .message("import was Drop successful")
                    .code("200")
                    .object("{}")

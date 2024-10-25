@@ -1,16 +1,13 @@
 package com.menglang.Clothing.shop.services.branch;
 
 
-import com.menglang.Clothing.shop.dto.ResponseErrorTemplate;
+import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.branch.BranchRequest;
-import com.menglang.Clothing.shop.entity.BranchEntity;
-
-import java.util.List;
 
 public interface BranchService {
-    public ResponseErrorTemplate create(BranchRequest data) throws Exception;
-    public ResponseErrorTemplate update(Long id,BranchRequest data)throws Exception;
-    public ResponseErrorTemplate delete(Long id)throws Exception;
-    public ResponseErrorTemplate findBranchById(Long id) throws Exception;
+    public ResponseTemplate create(BranchRequest data) throws Exception;
+    public ResponseTemplate update(Long id, BranchRequest data)throws Exception;
+    public ResponseTemplate delete(Long id)throws Exception;
+    public ResponseTemplate findBranchById(Long id) throws Exception;
 //    public BranchEntity findById(Long id) throws Exception;
 }

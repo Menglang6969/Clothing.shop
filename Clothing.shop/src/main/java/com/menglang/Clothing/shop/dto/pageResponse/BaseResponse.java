@@ -23,16 +23,14 @@ public class BaseResponse implements Serializable {
     private static final Logger log = LoggerFactory.getLogger(BaseResponse.class);
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private Boolean success;
-
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
+    private StatusResponse status;
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private BodyResponse body;
 
-    @JsonInclude(value = JsonInclude.Include.NON_NULL)
-    private StatusResponse status;
-
     public static ResponseEntity<BaseResponse> successful(Page<BasePageResponse> res,String message) {
         List<BasePageResponse> data = res.getContent();
-
+        log.info("data res-----------------{}{}",data,res);
         PageResponse page;
         if (res.getPageable().isUnpaged()) {
             page = null;
@@ -40,22 +38,25 @@ public class BaseResponse implements Serializable {
                 .count(res.getTotalElements())
                 .size(res.getSize())
                 .totalPage((int) (res.getTotalElements()/res.getSize())+1)
-                .page(res.getNumber()+1)
+                .page(res.getNumber())
                 .build();
 
         StatusResponse status=StatusResponse.builder()
                 .message(message)
                 .status((short) 200)
                 .build();
-        return ResponseEntity.ok(BaseResponse.builder().body(BodyResponse.builder().data(data).page(page).build()).success(true).status(status).build());
+        return ResponseEntity.ok(BaseResponse.builder()
+                .body(BodyResponse
+                        .builder()
+                        .data(data)
+                        .page(page).build()).success(true)
+                .status(status).build());
     }
 
     public static ResponseEntity<BaseResponse> success(Object data, Page<?> page, String message) {
         short code = 200;
         StatusResponse status = StatusResponse.builder().message(message).status(code).build();
         BodyResponse bodyData = BodyResponse.builder().build();
-
-
 
         BaseResponse res = BaseResponse.builder().build();
         log.info(" data res: {}",data.toString());
