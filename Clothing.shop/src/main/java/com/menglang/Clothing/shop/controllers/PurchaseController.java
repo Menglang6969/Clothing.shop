@@ -24,8 +24,10 @@ public class PurchaseController {
         return ResponseEntity.ok(purchaseOrderService.editPurchase(id, itemRequest));
     }
 
-//    @GetMapping("/user")
-//    public ResponseEntity<ResponseErrorTemplate> getCartItems(){
-//
-//    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<ResponseTemplate> dropPurchase(@PathVariable("id") Long id) throws Exception {
+        return ResponseEntity.ok(purchaseOrderService.dropPurchase(id));
+    }
+
+
 }
