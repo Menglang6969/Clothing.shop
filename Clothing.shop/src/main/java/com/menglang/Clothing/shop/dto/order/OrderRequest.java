@@ -9,6 +9,7 @@ import lombok.*;
 import java.util.List;
 
 @Builder
+
 public record OrderRequest (
         @JsonProperty("customer_name")
         String generalCustomer,

@@ -30,7 +30,7 @@ public class OrderCheck {
 
 
     public Set<OrderItemsEntity> getItemsOrdered(List<OrderDetailsRequest> data, OrderEntity order) throws Exception {
-        log.info("invoke getItems purchase................");
+        log.info("invoke orderItem ................");
         List<OrderItemsEntity> order_items = new ArrayList<>();
         for (OrderDetailsRequest item : data) {
             OrderItemsEntity order_item = validateOrderItems(item, order);
@@ -41,7 +41,7 @@ public class OrderCheck {
     }
 
     public OrderItemsEntity validateOrderItems(OrderDetailsRequest item, OrderEntity order) throws Exception {
-        log.info(" validate purchase Item..........................{}", item.color());
+        log.info(" validate order Item..........................{} {} {}", item.color(),item.size(),item.productId());
 
         try {
             ProductEntity product = getEntity.findProductById(item.productId());

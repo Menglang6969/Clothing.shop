@@ -1,6 +1,6 @@
 package com.menglang.Clothing.shop.services.purchase.purchaseAction;
 
-import com.menglang.Clothing.shop.entity.PurchaseItemEntity;
+import com.menglang.Clothing.shop.dto.discount.ItemCalculateType;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +14,9 @@ public class CalculatePrice {
 
     private static final Logger log = LoggerFactory.getLogger(CalculatePrice.class);
 
-    public Double calculateTotalPrice(Set<PurchaseItemEntity> items) {
+    public<T extends ItemCalculateType> Double calculateTotalPrice(Set<T> items) {
         double totalPrice = 0.0;
-        for (PurchaseItemEntity item : items) {
+        for (T item : items) {
             totalPrice += calculateDiscountWithQty(
                     item.getPrice(),
                     item.getQuantity(),

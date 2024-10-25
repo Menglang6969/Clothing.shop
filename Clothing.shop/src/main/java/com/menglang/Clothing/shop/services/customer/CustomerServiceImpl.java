@@ -3,8 +3,10 @@ package com.menglang.Clothing.shop.services.customer;
 import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.customer.CustomerMapper;
 import com.menglang.Clothing.shop.dto.customer.CustomerRequest;
+import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
 import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.entity.CustomerEntity;
+import com.menglang.Clothing.shop.entity.enums.CustomerType;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -102,4 +104,19 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerEntity findById(Long id) throws Exception {
         return customerRepository.findById(id).orElseThrow(() -> new CustomMessageException("Customer Not found", "404"));
     }
+
+    public  CustomerTypeResponse checkCustomerType(CustomerType type, Long cid, String generalCustomer) throws Exception {
+        CustomerEntity customer = null;
+        String general_customer = generalCustomer;
+        if (type.equals(CustomerType.SPECIAL)) {
+            customer = this.findById(cid);
+            general_customer = null;
+        }
+        return CustomerTypeResponse.builder()
+                .generalCustomer(generalCustomer)
+                .customer(customer)
+                .customerType(type)
+                .build();
+    }
+
 }

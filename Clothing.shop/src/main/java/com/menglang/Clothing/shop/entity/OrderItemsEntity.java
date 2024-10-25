@@ -10,6 +10,7 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
+@AllArgsConstructor
 @Table(name = "order_items")
 public class OrderItemsEntity extends BaseEntity<Long> {
 
@@ -42,5 +43,7 @@ public class OrderItemsEntity extends BaseEntity<Long> {
     private int discountedPercent;
 
 
+    public OrderItemsEntity() {
 
+    }
 }

@@ -2,6 +2,7 @@ package com.menglang.Clothing.shop.services.purchase.purchase;
 
 import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
+import com.menglang.Clothing.shop.dto.discount.DiscountMapper;
 import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderMapper;
 import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderRequest;
 import com.menglang.Clothing.shop.entity.PurchaseItemEntity;
@@ -39,6 +40,8 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
     private PurchaseCheck purchaseCheck;
     @Autowired
     private PurchaseOrderRepository purchaseOrderRepository;
+    @Autowired
+    private DiscountMapper discountMapper;
 
     @Override
     @Transactional()
@@ -53,9 +56,10 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         purchaseOrder.setTotalDiscountedPercent(data.discountedPercent());
         purchaseOrder.setTotalDiscountedPrice(data.discountedPrice());
         purchaseOrder.setPurchaseStatus(PurchaseStatus.IN_PROGRESS);
+
         Set<PurchaseItemEntity> itemEntitySet = purchaseCheck.getItemsPurchase(data.items(), purchaseOrder);
         purchaseOrder.setTotalItem(itemEntitySet.size());
-        double totalPrice = calculatePrice.calculateTotalPrice(itemEntitySet);
+        double totalPrice = calculatePrice.calculateTotalPrice(discountMapper.PurchaseToCalculateType(itemEntitySet));
         totalPrice = calculatePrice.calculateDiscountPrice(totalPrice, purchaseOrder.getTotalDiscountedPercent(), purchaseOrder.getTotalDiscountedPrice());
         purchaseOrder.setPurchaseItems(itemEntitySet);
         purchaseOrder.setTotalPrice(totalPrice);
@@ -89,7 +93,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             Set<PurchaseItemEntity> itemEntitySet = purchaseCheck.getItemsPurchase(data.items(), updatePurchase);
 
             updatePurchase.setTotalItem(itemEntitySet.size());
-            double totalPrice = calculatePrice.calculateTotalPrice(itemEntitySet);
+            double totalPrice = calculatePrice.calculateTotalPrice(discountMapper.PurchaseToCalculateType(itemEntitySet));
             totalPrice = calculatePrice.calculateDiscountPrice(totalPrice, data.discountedPercent(), data.discountedPrice());
             updatePurchase.getPurchaseItems().addAll(itemEntitySet);
             updatePurchase.setTotalPrice(totalPrice);
