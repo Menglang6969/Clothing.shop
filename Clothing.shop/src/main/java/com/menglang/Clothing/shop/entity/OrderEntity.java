@@ -23,6 +23,9 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     @Column(name = "total_price")
     private double totalPrice;
 
+    @Column(name = "total_price_khr")
+    private double totalPriceKHR;
+
     @Column(name = "total_item")
     private int totalItem;
 

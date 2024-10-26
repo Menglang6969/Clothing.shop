@@ -1,10 +1,8 @@
 package com.menglang.Clothing.shop.seed;
 
-import com.menglang.Clothing.shop.dto.customer.CustomerRequest;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.repositories.*;
-import com.menglang.Clothing.shop.services.customer.CustomerService;
 import com.menglang.Clothing.shop.services.stock.StockService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -42,24 +40,24 @@ public class SeedingData {
         seedCustomer();
     }
 
-    private void seedCustomer(){
+    private void seedCustomer() {
         log.info("invoke seeding customer..................................");
-        CustomerEntity c1=new CustomerEntity("menglang","012225566","kandal");
-        CustomerEntity c2=new CustomerEntity("jinglong","012225566","kandal");
-        CustomerEntity c3=new CustomerEntity("mengsorng","012225566","kandal");
-        List<CustomerEntity> customers=List.of(c1,c2,c3);
+        CustomerEntity c1 = new CustomerEntity("menglang", "012225566", "kandal");
+        CustomerEntity c2 = new CustomerEntity("jinglong", "012225566", "kandal");
+        CustomerEntity c3 = new CustomerEntity("mengsorng", "012225566", "kandal");
+        List<CustomerEntity> customers = List.of(c1, c2, c3);
         customerService.saveAll(customers);
     }
 
-    private void seedBranch(){
-        List<String> branches=List.of("Olympic","Ta Khmau","Battambang");
-        List<BranchEntity> branchEntities=new ArrayList<>();
+    private void seedBranch() {
+        List<String> branches = List.of("Olympic", "Ta Khmau", "Battambang");
+        List<BranchEntity> branchEntities = new ArrayList<>();
         log.info("seeding branch.......................");
-        for(String branch:branches){
-            BranchEntity br=BranchEntity.builder()
+        for (String branch : branches) {
+            BranchEntity br = BranchEntity.builder()
                     .name(branch)
-                    .description(branch+" city")
-                    .address(branch+" City")
+                    .description(branch + " city")
+                    .address(branch + " City")
                     .build();
             branchEntities.add(br);
         }
@@ -71,54 +69,58 @@ public class SeedingData {
     private void seedProduct() {
 
         log.info("seeding product.......................");
-        CategoryEntity category = categoryRepository.findById(2L).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
-        Set<ColorEntity> colorsSet = new HashSet<>();
-        for (Long color : List.of(1L, 2L)) {
-            Optional<ColorEntity> existColor = colorRepository.findById(color);
-            existColor.ifPresent(colorsSet::add);
-        }
+       try{
+           CategoryEntity category = categoryRepository.findById(2L).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
+           Set<ColorEntity> colorsSet = new HashSet<>();
+           for (Long color : List.of(1L, 2L)) {
+               Optional<ColorEntity> existColor = colorRepository.findById(color);
+               existColor.ifPresent(colorsSet::add);
+           }
 
-        Set<SizeEntity> productSizes = new HashSet<>();
-        for (Long size : List.of(1L, 2L)) {
-            Optional<SizeEntity> existSize = sizeRepository.findById(size);
-            existSize.ifPresent(productSizes::add);
-        }
+           Set<SizeEntity> productSizes = new HashSet<>();
+           for (Long size : List.of(1L, 2L)) {
+               Optional<SizeEntity> existSize = sizeRepository.findById(size);
+               existSize.ifPresent(productSizes::add);
+           }
 
-        ProductEntity p1 = ProductEntity.builder()
-                .title("NIKE")
-                .category(category)
-                .description("Made from Cambodia")
-                .baseCost(5.55)
-                .colors(colorsSet)
-                .sizes(productSizes)
-                .sellCost(8.99)
-                .imageUrl("https://localhost:image_url")
-                .build();
+           ProductEntity p1 = ProductEntity.builder()
+                   .title("NIKE")
+                   .category(category)
+                   .description("Made from Cambodia")
+                   .baseCost(5.55)
+                   .colors(colorsSet)
+                   .sizes(productSizes)
+                   .sellCost(8.99)
+                   .imageUrl("https://localhost:image_url")
+                   .build();
 
-        ProductEntity p2 = ProductEntity.builder()
-                .title("Adidas")
-                .category(category)
-                .description("Made from Cambodia")
-                .baseCost(5.55)
-                .colors(colorsSet)
-                .sizes(productSizes)
-                .sellCost(8.99)
-                .imageUrl("https://localhost:image_url")
-                .build();
+           ProductEntity p2 = ProductEntity.builder()
+                   .title("Adidas")
+                   .category(category)
+                   .description("Made from Cambodia")
+                   .baseCost(5.55)
+                   .colors(colorsSet)
+                   .sizes(productSizes)
+                   .sellCost(8.99)
+                   .imageUrl("https://localhost:image_url")
+                   .build();
 
-        ProductEntity p3 = ProductEntity.builder()
-                .title("Jodan")
-                .category(category)
-                .description("Made from Cambodia")
-                .baseCost(5.55)
-                .colors(colorsSet)
-                .sizes(productSizes)
-                .sellCost(8.99)
-                .imageUrl("https://localhost:image_url")
-                .build();
+           ProductEntity p3 = ProductEntity.builder()
+                   .title("Jodan")
+                   .category(category)
+                   .description("Made from Cambodia")
+                   .baseCost(5.55)
+                   .colors(colorsSet)
+                   .sizes(productSizes)
+                   .sellCost(8.99)
+                   .imageUrl("https://localhost:image_url")
+                   .build();
 
-        List<ProductEntity> productEntities = List.of(p1, p2, p3);
-        productRepository.saveAll(productEntities);
+           List<ProductEntity> productEntities = List.of(p1, p2, p3);
+           productRepository.saveAll(productEntities);
+       }catch (Exception e){
+           throw new CustomMessageException(e.getMessage(), "404");
+       }
 
     }
 
@@ -182,15 +184,16 @@ public class SeedingData {
 
     private void seedProductStock() throws Exception {
         log.info("Seeding product stock.............................");
-        List<ProductEntity> products=productRepository.findAll();
-        if(!products.isEmpty()){
-           for(ProductEntity product:products){
-               Set<ColorEntity> colors=product.getColors();
-               Set<SizeEntity> sizes = product.getSizes();
-               stockService.addProductStocks(colors,sizes,product);
-           }
+        List<ProductEntity> products = productRepository.findAll();
+        if (!products.isEmpty()) {
+            for (ProductEntity product : products) {
+                Set<ColorEntity> colors = product.getColors();
+                Set<SizeEntity> sizes = product.getSizes();
+                stockService.addProductStocks(colors, sizes, product);
+            }
         }
     }
+
     private void seedUsers() {
 
     }

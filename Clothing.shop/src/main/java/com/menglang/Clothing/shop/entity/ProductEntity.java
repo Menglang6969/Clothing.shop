@@ -62,12 +62,6 @@ public class ProductEntity extends BaseAuditEntity<Long> {
     @Column(length = 10,name = "discounted_percent")
     private Integer discountedPercent;
 
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<RatingEntity> ratings = new HashSet<>();
-
-    @Column(name = "num_rating")
-    private int numRating;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id",nullable = false)

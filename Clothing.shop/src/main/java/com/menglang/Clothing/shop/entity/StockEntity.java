@@ -23,12 +23,12 @@ public class StockEntity extends BaseAuditEntity<Long> {
     @JoinColumn(name = "branch_id", nullable = false)
     private BranchEntity branch;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "size_id", nullable = false)
     private SizeEntity size;
 
     // The color of the product in this stock entry
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "color_id", nullable = false)
     private ColorEntity color;
 

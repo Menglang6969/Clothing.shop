@@ -54,16 +54,7 @@ public class UserEntity extends BaseAuditEntity<Long> {
     @Builder.Default
     private List<PaymentInformation> paymentInformation=new ArrayList<>();
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    @JsonIgnore
-    @Builder.Default
-    private Set<RatingEntity> rating=new HashSet<>();
 
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JsonIgnore
-    @Builder.Default
-    private Set<ReviewEntity> review=new HashSet<>();
 
 
 }

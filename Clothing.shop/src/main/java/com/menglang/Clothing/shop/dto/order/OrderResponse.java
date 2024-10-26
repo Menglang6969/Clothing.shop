@@ -12,23 +12,25 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
+
 @Setter
 @Getter
 
 public class OrderResponse extends BaseResponseAudit {
     @JsonProperty(index = 1)
     Long id;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(index = 2)
-    String generalCustomer;
-
-    @JsonProperty(index = 3)
-    CustomerType customerType;
-
-
+    @JsonProperty(index = 7)
+    BranchDTO branch;
     @JsonProperty(index = 4)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     CustomerDTO customer;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(index = 2)
+    String generalCustomer;
+    @JsonProperty(index = 3)
+    CustomerType customerType;
+    @JsonProperty(index = 8)
+    int totalItem;
 
     @JsonProperty(index = 5)
     double discountedPrice;
@@ -36,19 +38,16 @@ public class OrderResponse extends BaseResponseAudit {
     @JsonProperty(index = 6)
     int discountedPercent;
 
-    @JsonProperty(index = 7)
-    BranchDTO branch;
-
-    @JsonProperty(index = 8)
-    int totalItem;
-
     @JsonProperty(index = 8)
     double totalPrice;
 
     @JsonProperty(index = 9)
-    List<OrderDetailsResponse> orderItems;
+    double totalPriceKHR;
 
+    @JsonProperty(index = 10)
     String address;
+    @JsonProperty(index = 11)
+    List<OrderDetailsResponse> orderItems;
 
     public OrderResponse(String createdBy, String updatedBy, Date createdAt, Date updatedAt) {
         super(createdBy, updatedBy, createdAt, updatedAt);

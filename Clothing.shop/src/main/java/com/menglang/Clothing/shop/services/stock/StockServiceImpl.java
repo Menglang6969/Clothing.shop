@@ -70,6 +70,7 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
+    @Transactional
     public void addProductStocks(Set<ColorEntity> colors, Set<SizeEntity> sizes, ProductEntity product) throws Exception {
         List<BranchEntity> branchEntities=branchRepository.findAll();
         List<StockEntity> stockEntities=new ArrayList<>();

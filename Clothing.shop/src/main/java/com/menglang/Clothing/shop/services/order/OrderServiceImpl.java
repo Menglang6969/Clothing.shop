@@ -117,6 +117,7 @@ public class OrderServiceImpl implements OrderService {
            newOrder.setOrderItems(itemsDetails);
            newOrder.setTotalPrice(totalPrice);
 
+
            OrderEntity saveOrder = orderRepository.save(newOrder);
            Set<OrderItemsEntity> items = newOrder.getOrderItems();
            orderItemRepository.saveAll(items);
