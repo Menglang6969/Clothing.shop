@@ -1,6 +1,8 @@
 package com.menglang.Clothing.shop.utils;
 
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
@@ -9,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 public class FileUtil {
+    private static final Logger log = LoggerFactory.getLogger(FileUtil.class);
+
     public static String saveMultipartFile(MultipartFile file, String path) {
         if (file.getSize() <= 0) throw new CustomMessageException("No file found", "400");
 
@@ -19,6 +23,7 @@ public class FileUtil {
         String extension=sourceFilename.contains(".")?sourceFilename.substring(sourceFilename.lastIndexOf(".")):"";
         Path pth=!path.isBlank()||!path.isEmpty()? Paths.get(path):Paths.get("./");
 
+        log.info("-----------------------path :{}",pth);
         try{
             if(Files.notExists(pth))
                 Files.createDirectories(pth);
