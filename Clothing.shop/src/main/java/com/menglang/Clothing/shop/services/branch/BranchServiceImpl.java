@@ -4,10 +4,17 @@ import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.branch.BranchMapper;
 import com.menglang.Clothing.shop.dto.branch.BranchRequest;
 import com.menglang.Clothing.shop.entity.BranchEntity;
+import com.menglang.Clothing.shop.entity.enums.SortBy;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.BranchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,7 +42,7 @@ public class BranchServiceImpl implements BranchService {
                   .message("created successful")
                   .build();
       }catch (Exception e){
-          throw new CustomMessageException(e.getMessage(),"400");
+          throw new BadRequestException(e.getMessage());
       }
     }
 
@@ -53,7 +60,7 @@ public class BranchServiceImpl implements BranchService {
                     .message("updated successful")
                     .build();
         }catch (Exception e){
-            throw new CustomMessageException(e.getMessage(),"400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -68,7 +75,7 @@ public class BranchServiceImpl implements BranchService {
                    .code("200")
                    .build();
        }catch (Exception e){
-           throw new CustomMessageException(e.getMessage(),"400");
+           throw new BadRequestException(e.getMessage());
        }
     }
 
@@ -82,8 +89,15 @@ public class BranchServiceImpl implements BranchService {
                 .build();
     }
 
+    @Override
+    public Page<BranchEntity> findAllBranches(int page, int limit, SortBy sort,String sortByField, String query) throws Exception {
+        Sort sortBy=Sort.by(sort.equals(SortBy.ASC)?Sort.Direction.ASC:Sort.Direction.DESC,sortByField);
+        Pageable pageable= PageRequest.of(page-1,limit,sortBy);
+        return branchRepository.findAllByNameContainingIgnoreCase(query,pageable);
+    }
+
 
     public  BranchEntity findById(Long id)throws Exception{
-        return branchRepository.findById(id).orElseThrow(()->new CustomMessageException("Branch Not Founded","404"));
+        return branchRepository.findById(id).orElseThrow(()->new NotFoundException("Branch Not Founded"));
     }
 }

@@ -10,6 +10,8 @@ import java.util.List;
 
 @Builder
 public record PurchaseOrderRequest(
+
+
         @JsonProperty("customer_name")
         String generalCustomer,
         @JsonProperty("customer_type")

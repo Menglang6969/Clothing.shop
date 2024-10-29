@@ -1,6 +1,8 @@
 package com.menglang.Clothing.shop.repositories;
 
 import com.menglang.Clothing.shop.entity.CategoryEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -24,4 +26,7 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
 
     @Query("Select  CASE WHEN COUNT(c) > 0 THEN true ELSE false END from CategoryEntity c Where c.name=?1")
     public boolean existsByName(String name);
+
+    @Query("select c from CategoryEntity c where upper(c.name) like upper(concat('%', ?1, '%'))")
+    public Page<CategoryEntity> findByNameContainingIgnoreCase(String query, Pageable pageable);
 }

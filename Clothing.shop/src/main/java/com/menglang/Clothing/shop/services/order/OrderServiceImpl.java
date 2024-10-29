@@ -5,11 +5,15 @@ import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
 import com.menglang.Clothing.shop.dto.discount.DiscountMapper;
 import com.menglang.Clothing.shop.dto.order.OrderMapper;
 import com.menglang.Clothing.shop.dto.order.OrderRequest;
+import com.menglang.Clothing.shop.dto.order.OrderResponse;
 import com.menglang.Clothing.shop.dto.order.orderDetails.OrderDetailsRequest;
+import com.menglang.Clothing.shop.dto.pageResponse.BaseResponse;
 import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderMapper;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.entity.enums.PurchaseStatus;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.OrderItemRepository;
 import com.menglang.Clothing.shop.repositories.OrderRepository;
@@ -19,17 +23,17 @@ import com.menglang.Clothing.shop.services.customer.CustomerServiceImpl;
 import com.menglang.Clothing.shop.services.order.OrderAction.OrderCheck;
 import com.menglang.Clothing.shop.services.purchase.purchaseAction.CalculatePrice;
 import com.menglang.Clothing.shop.services.purchase.purchaseAction.PurchaseCheck;
+import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseTemplate findOrderById(Long id) throws Exception {
-        PurchaseOrderEntity purchaseOrder = purchaseOrderRepository.findById(id).orElseThrow(() -> new CustomMessageException("Purchase Order Not Found", "404"));
+        PurchaseOrderEntity purchaseOrder = purchaseOrderRepository.findById(id).orElseThrow(() -> new NotFoundException("Purchase Order Not Found"));
 
         List<OrderDetailsRequest> orderDetailsRequests=new ArrayList<>();
 
@@ -91,6 +95,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public BaseResponse findByOrderNo(String orderNo) throws Exception {
+        return orderRepository.findByOrderNoContainingIgnoreCase(orderNo);
+    }
+
+    @Override
     @Transactional
     public ResponseTemplate makeOrder(OrderRequest data) throws Exception {
        try {
@@ -102,6 +111,7 @@ public class OrderServiceImpl implements OrderService {
                    data.customer(),
                    data.generalCustomer()
            );
+           newOrder.setOrderNo(data.orderNo());//to-do generate ORD+AutoIncrement
            newOrder.setAddress(data.address());
            newOrder.setBranch(getEntity.findBranchById(data.branch()));
            newOrder.setCustomer(customerRes.getCustomer());
@@ -116,6 +126,7 @@ public class OrderServiceImpl implements OrderService {
            totalPrice = calculatePrice.calculateDiscountPrice(totalPrice, newOrder.getDiscountedPercent(), newOrder.getDiscountedPrice());
            newOrder.setOrderItems(itemsDetails);
            newOrder.setTotalPrice(totalPrice);
+           newOrder.setTotalPriceKHR(totalPrice*4000);
 
 
            OrderEntity saveOrder = orderRepository.save(newOrder);
@@ -128,8 +139,18 @@ public class OrderServiceImpl implements OrderService {
                    .build();
 
        }catch (Exception e){
-           throw new CustomMessageException(e.getMessage(), "404");
+           throw new BadRequestException(e.getMessage());
        }
+    }
+
+    @Override
+    public Page<OrderEntity> findAll(int page, int limit, String sort, Long branch, Date startDate, Date endDate) throws Exception {
+        Pageable pageable= PageableResponse.mapPageable(page,limit,sort);
+        BranchEntity branchEntity=null;
+        if(branch!=null){
+            branchEntity=getEntity.findBranchById(branch);
+        }
+        return this.orderRepository.findAllByBranchAndCreatedAtBetween(branchEntity,startDate,endDate,pageable);
     }
 
     private void validateProductPrice(List<OrderDetailsRequest> orderItems) throws Exception {
@@ -141,5 +162,8 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    private String generateOrderNo(){
+        return "ORD"+Math.round(Math.random()*100000);
+    }
 
 }

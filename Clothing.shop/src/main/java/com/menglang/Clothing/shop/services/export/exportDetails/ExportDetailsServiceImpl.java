@@ -6,6 +6,7 @@ import com.menglang.Clothing.shop.entity.ExportDetailsEntity;
 import com.menglang.Clothing.shop.entity.ProductEntity;
 import com.menglang.Clothing.shop.entity.SizeEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.ExportDetailsRepository;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,6 @@ public class ExportDetailsServiceImpl implements ExportDetailsService {
     }
 
     private ExportDetailsEntity findExportDetailsById(Long id) throws Exception {
-        return exportDetailsRepository.findById(id).orElseThrow(() -> new CustomMessageException("Import details not found", "404"));
+        return exportDetailsRepository.findById(id).orElseThrow(() -> new NotFoundException("Import details not found"));
     }
 }

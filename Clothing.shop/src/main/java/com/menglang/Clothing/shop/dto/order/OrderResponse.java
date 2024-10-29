@@ -19,34 +19,36 @@ import java.util.List;
 public class OrderResponse extends BaseResponseAudit {
     @JsonProperty(index = 1)
     Long id;
-    @JsonProperty(index = 7)
+    @JsonProperty(index = 2)
+    private String orderNo;;
+    @JsonProperty(index = 8)
     BranchDTO branch;
-    @JsonProperty(index = 4)
+    @JsonProperty(index = 5)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     CustomerDTO customer;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonProperty(index = 2)
-    String generalCustomer;
     @JsonProperty(index = 3)
+    String generalCustomer;
+    @JsonProperty(index = 4)
     CustomerType customerType;
-    @JsonProperty(index = 8)
+    @JsonProperty(index = 9)
     int totalItem;
 
-    @JsonProperty(index = 5)
+    @JsonProperty(index = 6)
     double discountedPrice;
 
-    @JsonProperty(index = 6)
+    @JsonProperty(index = 7)
     int discountedPercent;
 
-    @JsonProperty(index = 8)
+    @JsonProperty(index = 10)
     double totalPrice;
 
-    @JsonProperty(index = 9)
+    @JsonProperty(index = 11)
     double totalPriceKHR;
 
-    @JsonProperty(index = 10)
+    @JsonProperty(index = 12)
     String address;
-    @JsonProperty(index = 11)
+    @JsonProperty(index = 13)
     List<OrderDetailsResponse> orderItems;
 
     public OrderResponse(String createdBy, String updatedBy, Date createdAt, Date updatedAt) {

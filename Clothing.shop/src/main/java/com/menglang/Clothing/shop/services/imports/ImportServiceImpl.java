@@ -4,17 +4,19 @@ import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.imports.ImportMapper;
 import com.menglang.Clothing.shop.dto.imports.ImportRequest;
 import com.menglang.Clothing.shop.dto.imports.details.ImportDetailsRequest;
-import com.menglang.Clothing.shop.entity.BranchEntity;
-import com.menglang.Clothing.shop.entity.ImportDetailsEntity;
-import com.menglang.Clothing.shop.entity.ImportEntity;
-import com.menglang.Clothing.shop.entity.StockEntity;
+import com.menglang.Clothing.shop.entity.*;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.BranchRepository;
 import com.menglang.Clothing.shop.repositories.ImportRepository;
 import com.menglang.Clothing.shop.services.imports.importDetails.ImportDetailsService;
 import com.menglang.Clothing.shop.services.stock.StockService;
+import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +72,7 @@ public class ImportServiceImpl implements ImportService {
                     .build();
 
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -99,7 +101,7 @@ public class ImportServiceImpl implements ImportService {
                     .message("Products has been updated Stock successful")
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -124,12 +126,19 @@ public class ImportServiceImpl implements ImportService {
                    .object("{}")
                    .build();
        }catch (Exception e){
-           throw new CustomMessageException(e.getMessage(),"400");
+           throw new BadRequestException(e.getMessage());
        }
     }
 
+    @Override
+    public Page<ImportEntity> getAll(int page, int limit, String sortBy, String query) {
+            Pageable pageable= PageableResponse.mapPageable(page,limit,sortBy);
+            return importRepository.findAllByImportNoContainingIgnoreCase(query,pageable);
+
+    }
+
     private ImportEntity getImportById(Long id) throws Exception {
-        return importRepository.findById(id).orElseThrow(() -> new CustomMessageException("Import Id not founded", "400"));
+        return importRepository.findById(id).orElseThrow(() -> new NotFoundException("Import Id not founded"));
     }
 
     private void updateProductStock(ImportDetailsEntity detail) throws Exception {

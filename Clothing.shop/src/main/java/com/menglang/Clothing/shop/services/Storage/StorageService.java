@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,6 +41,18 @@ public class StorageService {
         } catch (Exception e) {
             throw new CustomMessageException(e.getMessage(), "400");
         }
+    }
+
+    public void deleteFile(String filename) throws IOException {
+        Path p =Paths.get(FILE_PATH).resolve(filename).toAbsolutePath().normalize();
+        Path file = p.resolve(filename);
+       try{
+           if(Files.exists(file)) {
+               Files.delete(file);
+           }
+       }catch (Exception e) {
+           throw new CustomMessageException(e.getMessage(), "400");
+       }
     }
 
 

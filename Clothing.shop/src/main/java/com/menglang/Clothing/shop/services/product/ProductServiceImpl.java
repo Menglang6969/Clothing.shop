@@ -7,6 +7,7 @@ import com.menglang.Clothing.shop.dto.product.ProductRequest;
 import com.menglang.Clothing.shop.dto.product.ProductResponse;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.*;
 
 import com.menglang.Clothing.shop.services.stock.StockServiceImpl;
@@ -154,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private CategoryEntity checkCategory(Long categoryId) throws Exception {
-        return categoryRepository.findById(categoryId).orElseThrow(() -> new CustomMessageException("Category does not exist", "400"));
+        return categoryRepository.findById(categoryId).orElseThrow(() -> new NotFoundException("Category does not exist"));
 
     }
 

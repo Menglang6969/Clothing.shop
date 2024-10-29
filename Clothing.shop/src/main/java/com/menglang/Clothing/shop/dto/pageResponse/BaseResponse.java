@@ -61,10 +61,11 @@ public class BaseResponse implements Serializable {
         BaseResponse res = BaseResponse.builder().build();
         log.info(" data res: {}",data.toString());
         log.info(" data page: {}",page);
-        if (data instanceof BodyResponse) {
+        if (data instanceof BasePageResponse) {
+            log.info(" data instance: {}",data);
             bodyData.setData(data);
         } else if (data instanceof List<?>) {
-            if (!((List<?>) data).isEmpty() && ((List<?>) data).get(0) instanceof BodyResponse) {
+            if (!((List<?>) data).isEmpty() && ((List<?>) data).get(0) instanceof BasePageResponse) {
                 bodyData.setData(data);
             } else {
                 bodyData.setData(Collections.emptyList());
@@ -74,9 +75,9 @@ public class BaseResponse implements Serializable {
         if (page != null) {
             PageResponse pageResponse = PageResponse.builder().build();
             pageResponse.setSize(page.getSize());
-            pageResponse.setPage(page.getNumber());
+            pageResponse.setPage(page.getNumber()+1);
             pageResponse.setCount(page.getTotalElements());
-            pageResponse.setTotalPage((int) (page.getTotalElements() / page.getSize()));
+            pageResponse.setTotalPage((int) Math.ceil((double) pageResponse.getCount() / pageResponse.getSize()));
 
             bodyData.setPage(pageResponse);
         }

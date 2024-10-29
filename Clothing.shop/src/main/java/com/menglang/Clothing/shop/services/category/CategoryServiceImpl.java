@@ -3,11 +3,20 @@ package com.menglang.Clothing.shop.services.category;
 import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.category.CategoryRequest;
 import com.menglang.Clothing.shop.entity.CategoryEntity;
+import com.menglang.Clothing.shop.entity.enums.SortBy;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
+import com.menglang.Clothing.shop.exceptions.ConflictException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.CategoryRepository;
+import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +52,7 @@ public class CategoryServiceImpl implements CategoryInterface {
                     .build();
 
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "500");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -51,15 +60,15 @@ public class CategoryServiceImpl implements CategoryInterface {
     public ResponseTemplate update(Long id, CategoryRequest categoryRequest) {
 
         if (categoryRepository.existsByNameAndIdNot(categoryRequest.name(), id)) {
-            throw new CustomMessageException( "Category name already exists: ", String.valueOf(HttpStatus.CONFLICT.value()));
+            throw new ConflictException("Category name already exists: ");
         }
 
-        Optional<CategoryEntity> categoryOptional= Optional.ofNullable(categoryRepository.findById(id).orElseThrow(() -> new CustomMessageException("Category not founded.", "400")));
+        Optional<CategoryEntity> categoryOptional = Optional.ofNullable(categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not founded.")));
 
-        try{
-            if (categoryOptional.isPresent()){
-                CategoryEntity existCategory=categoryOptional.get();
-                CategoryEntity isParent=validateCategory(categoryRequest);
+        try {
+            if (categoryOptional.isPresent()) {
+                CategoryEntity existCategory = categoryOptional.get();
+                CategoryEntity isParent = validateCategory(categoryRequest);
                 existCategory.setDescription(categoryRequest.description());
                 existCategory.setLevel(categoryRequest.level());
                 existCategory.setName(categoryRequest.name());
@@ -74,11 +83,15 @@ public class CategoryServiceImpl implements CategoryInterface {
                         .object(existCategory)
                         .build();
             }
+            return ResponseTemplate.builder()
+                    .message("Category is Missing")
+                    .code("203")
+                    .object(null)
+                    .build();
 
-        }catch (Exception e){
-            throw new CustomMessageException(e.getMessage(),"500");
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
         }
-        return null;
     }
 
     @Override
@@ -93,18 +106,20 @@ public class CategoryServiceImpl implements CategoryInterface {
                         .code("200")
                         .build();
             }else{
-                throw new CustomMessageException("Category to be delete does not exist","400");
+                throw new NotFoundException("Category Not found");
             }
         }catch (Exception e){
-            throw new CustomMessageException(e.getMessage(), "500");
+           throw new BadRequestException(e.getMessage());
         }
 
     }
 
     @Override
-    public ResponseTemplate getAll() {
-        return null;
+    public Page<CategoryEntity> getAll(int page, int limit, String sort, String query) {//createdAt:desc
+        Pageable pageable= PageableResponse.mapPageable(page-1,limit,sort);
+        return categoryRepository.findByNameContainingIgnoreCase(query,pageable);
     }
+
 
     @Override
     public ResponseTemplate findOne(Long id) {
@@ -131,10 +146,10 @@ public class CategoryServiceImpl implements CategoryInterface {
         try{
            Optional<CategoryEntity> category= categoryRepository.findByName(name);
            if(category.isPresent()){
-               throw new CustomMessageException(name+" is Exist","400");
+               throw new ConflictException(name+" is Exist");
            }
         }catch (Exception e){
-            throw new CustomMessageException(e.getMessage(),"500");
+            throw new BadRequestException(e.getMessage());
         }
     }
 

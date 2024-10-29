@@ -9,15 +9,20 @@ import com.menglang.Clothing.shop.entity.BranchEntity;
 import com.menglang.Clothing.shop.entity.ExportDetailsEntity;
 import com.menglang.Clothing.shop.entity.ExportEntity;
 import com.menglang.Clothing.shop.entity.StockEntity;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.ExportRepository;
 import com.menglang.Clothing.shop.repositories.StockRepository;
 import com.menglang.Clothing.shop.services.export.exportDetails.ExportDetailsService;
+import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +79,7 @@ public class ExportServiceImpl implements ExportService {
                     .build();
 
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -93,7 +98,7 @@ public class ExportServiceImpl implements ExportService {
                     .message("Verify Stock successful")
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
 
     }
@@ -119,13 +124,19 @@ public class ExportServiceImpl implements ExportService {
                     .object("{}")
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
 
     }
 
+    @Override
+    public Page<ExportEntity> getAll(int page, int limit, String sortBy, String query) {
+        Pageable pageable= PageableResponse.mapPageable(page,limit,sortBy);
+        return exportRepository.findAllByExportNoContainingIgnoreCase(query,pageable);
+    }
+
     private ExportEntity getExportById(Long id) throws Exception {
-        return exportRepository.findById(id).orElseThrow(() -> new CustomMessageException("Export not founded", "404"));
+        return exportRepository.findById(id).orElseThrow(() -> new NotFoundException("Export not founded"));
     }
 
     private List<StockEntity> mapStockQuantity(BranchEntity fromBranch, BranchEntity toBranch, List<ExportDetailsEntity> exportDetails) throws Exception {
@@ -141,7 +152,7 @@ public class ExportServiceImpl implements ExportService {
             }
             return updateStock;
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
 
     }

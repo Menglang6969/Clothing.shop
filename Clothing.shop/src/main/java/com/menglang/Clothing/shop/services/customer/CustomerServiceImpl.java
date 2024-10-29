@@ -7,8 +7,11 @@ import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
 import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
 import com.menglang.Clothing.shop.entity.CustomerEntity;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.CustomerRepository;
+import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -46,7 +49,7 @@ public class CustomerServiceImpl implements CustomerService {
                     .object(customerMapper.toCustomerDTO(savedCustomer))
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -64,21 +67,17 @@ public class CustomerServiceImpl implements CustomerService {
                     .message("update successful")
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
     @Override
-    public Page<BasePageResponse> getAll() throws Exception {
-        int page = 1;
-        int limit = 30;
-        Sort sort = Sort.by(Sort.Direction.DESC, "name");
-        Pageable pageable = PageRequest.of(page, limit, sort);
-        log.info("data response before map: {}",customerRepository.findAll(pageable));
-        log.info("data response after map: {}",customerRepository.findAll(pageable).map(customerMapper::toCustomerDTO));
-        return customerRepository.findAll(pageable).map(customerMapper::toCustomerDTO);
-
+    public Page<CustomerEntity> getAll(int page, int limit, String sort, String query) throws Exception {
+        Pageable pageable= PageableResponse.mapPageable(page,limit,sort);
+        return customerRepository.findAllByNameContainingIgnoreCase(query,pageable);
     }
+
+
 
     @Override
     public ResponseTemplate delete(Long id) throws Exception {
@@ -102,7 +101,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerEntity findById(Long id) throws Exception {
-        return customerRepository.findById(id).orElseThrow(() -> new CustomMessageException("Customer Not found", "404"));
+        return customerRepository.findById(id).orElseThrow(() -> new NotFoundException("Customer Not found"));
     }
 
     public  CustomerTypeResponse checkCustomerType(CustomerType type, Long cid, String generalCustomer) throws Exception {

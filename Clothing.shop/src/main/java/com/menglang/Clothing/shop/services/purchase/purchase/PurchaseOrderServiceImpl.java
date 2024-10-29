@@ -8,6 +8,7 @@ import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderReques
 import com.menglang.Clothing.shop.entity.PurchaseItemEntity;
 import com.menglang.Clothing.shop.entity.PurchaseOrderEntity;
 import com.menglang.Clothing.shop.entity.enums.PurchaseStatus;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.PurchaseItemsRepository;
@@ -106,7 +107,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                     .message("update purchase successful")
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 

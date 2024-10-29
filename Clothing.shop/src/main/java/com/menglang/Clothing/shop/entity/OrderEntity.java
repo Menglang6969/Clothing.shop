@@ -20,6 +20,9 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     @JoinColumn(name = "branch_id", nullable = false)
     private BranchEntity branch;
 
+    @Column(name = "order_no",length = 20)
+    private String orderNo;
+
     @Column(name = "total_price")
     private double totalPrice;
 

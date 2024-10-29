@@ -1,11 +1,10 @@
 package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.Objects;
 
 @Setter
@@ -28,6 +27,9 @@ public class FileEntity extends BaseAuditEntity<Long> {
 
     @Column(nullable = false)
     private Long size;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deletedAt;
 
 
     @Override

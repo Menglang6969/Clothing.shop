@@ -1,7 +1,9 @@
 package com.menglang.Clothing.shop.services.stock;
 
 import com.menglang.Clothing.shop.entity.*;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.BranchRepository;
 import com.menglang.Clothing.shop.repositories.ProductRepository;
 import com.menglang.Clothing.shop.repositories.StockRepository;
@@ -64,7 +66,7 @@ public class StockServiceImpl implements StockService {
 
             return stockRepository.save(curStock);
         }catch (Exception e){
-            throw new CustomMessageException(e.getMessage(),"400");
+            throw new BadRequestException(e.getMessage());
         }
 
     }
@@ -93,12 +95,13 @@ public class StockServiceImpl implements StockService {
             }
             stockRepository.saveAll(stockEntities);
         }catch (Exception e){
-            throw new CustomMessageException(e.getMessage(),"400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
 
     @Override
+    @Transactional
     public void exportProducts(Long fromBranch, Long toBranch, StockEntity data) throws Exception {
 
     }
@@ -110,7 +113,7 @@ public class StockServiceImpl implements StockService {
     }
 
     private StockEntity findById(Long id) throws Exception {
-        return stockRepository.findById(id).orElseThrow(() -> new CustomMessageException("Product Stock Not found", "400"));
+        return stockRepository.findById(id).orElseThrow(() -> new NotFoundException("Product Stock Not found"));
     }
 
 }

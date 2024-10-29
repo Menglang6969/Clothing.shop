@@ -8,6 +8,7 @@ import com.menglang.Clothing.shop.dto.user.UserResponse;
 import com.menglang.Clothing.shop.entity.RoleEntity;
 import com.menglang.Clothing.shop.entity.UserEntity;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.PurchaseOrderRepository;
 import com.menglang.Clothing.shop.repositories.RoleRepository;
 import com.menglang.Clothing.shop.repositories.UserRepository;
@@ -156,7 +157,7 @@ public class UserServiceImp implements UserInterface {
             return this.userMapper(user.get());
         }
 
-        return new ResponseTemplate("Not found",String.valueOf(HttpStatus.NOT_FOUND.value()),new Object());
+        throw  new NotFoundException("Not found");
     }
 
     public ResponseTemplate userMapper(UserEntity user) {

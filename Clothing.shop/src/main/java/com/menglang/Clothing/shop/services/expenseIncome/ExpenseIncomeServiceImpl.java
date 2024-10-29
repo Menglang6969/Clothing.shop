@@ -4,9 +4,15 @@ import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.expenseIncome.ExpenseIncomeMapper;
 import com.menglang.Clothing.shop.dto.expenseIncome.ExpenseIncomeRequest;
 import com.menglang.Clothing.shop.entity.ExpenseIncomeEntity;
+import com.menglang.Clothing.shop.entity.enums.ExpenseIncomeType;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
+import com.menglang.Clothing.shop.exceptions.NotFoundException;
 import com.menglang.Clothing.shop.repositories.ExpenseIncomeRepository;
+import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,7 +37,7 @@ public class ExpenseIncomeServiceImpl implements ExpenseIncomeService {
                     .object(expenseIncomeMapper.toExpenseIncomeDTO(savedExpenseIncome))
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "404");
+            throw new BadRequestException(e.getMessage());
         }
 
     }
@@ -62,7 +68,7 @@ public class ExpenseIncomeServiceImpl implements ExpenseIncomeService {
                     .object(expenseIncomeMapper.toExpenseIncomeDTO(expenseIncomeUpdate))
                     .build();
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
@@ -77,7 +83,13 @@ public class ExpenseIncomeServiceImpl implements ExpenseIncomeService {
                 .build();
     }
 
+    @Override
+    public Page<ExpenseIncomeEntity> findAll(int page, int limit, String sort, ExpenseIncomeType type) throws Exception {
+        Pageable pageable= PageableResponse.mapPageable(page,limit,sort);
+        return expenseIncomeRepository.findAllByType(type,pageable);
+    }
+
     private ExpenseIncomeEntity findById(Long id) throws Exception {
-        return expenseIncomeRepository.findById(id).orElseThrow(() -> new CustomMessageException("Data Not Found", "404"));
+        return expenseIncomeRepository.findById(id).orElseThrow(() -> new NotFoundException("Data Not Found"));
     }
 }

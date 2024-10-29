@@ -4,6 +4,7 @@ import com.menglang.Clothing.shop.dto.customer.CustomerTypeResponse;
 import com.menglang.Clothing.shop.dto.purchase.purchaseItems.ItemRequest;
 import com.menglang.Clothing.shop.entity.*;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
+import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import com.menglang.Clothing.shop.repositories.PurchaseOrderRepository;
@@ -61,7 +62,7 @@ public class PurchaseCheck {
                     .build();
 
         } catch (Exception e) {
-            throw new CustomMessageException(e.getMessage(), "400");
+            throw new BadRequestException(e.getMessage());
         }
     }
 
