@@ -1,16 +1,23 @@
 package com.menglang.Clothing.shop.dto.stock;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import com.menglang.Clothing.shop.dto.pageResponse.BasePageResponse;
+import com.menglang.Clothing.shop.dto.stock.productStock.ProductDetails;
+import lombok.*;
+
+import java.util.List;
 
 @Setter
 @Getter
-public class StockResponse {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class StockResponse extends BasePageResponse {
     private Long id;
-    private Long product;
-    private Long size;
-    private Long color;
-    private int quantity;
-    private double importCost;
+    private String name;
+    private List<ProductDetails> productDetails;
+
+    public void addProductDetails(ProductDetails data){
+        this.productDetails.add(data);
+    }
 }

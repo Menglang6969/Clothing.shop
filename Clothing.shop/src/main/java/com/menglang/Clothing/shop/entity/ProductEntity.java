@@ -12,7 +12,9 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product_tbl")
+@Table(name = "product_tbl",
+        indexes = @Index(name = "idx_product_name", columnList = "title")
+)
 public class ProductEntity extends BaseAuditEntity<Long> {
 
 
