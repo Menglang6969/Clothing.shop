@@ -1,16 +1,23 @@
 package com.menglang.Clothing.shop.services.purchase.purchaseAction;
 
 import com.menglang.Clothing.shop.dto.discount.ItemCalculateType;
+import com.menglang.Clothing.shop.dto.order.orderDetails.OrderDetailsRequest;
+import com.menglang.Clothing.shop.entity.ProductEntity;
+import com.menglang.Clothing.shop.helpers.GetEntitiesById;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 public class CalculatePrice {
+    @Autowired
+    private final GetEntitiesById getEntity;
 
     private static final Logger log = LoggerFactory.getLogger(CalculatePrice.class);
 
@@ -38,5 +45,14 @@ public class CalculatePrice {
         return price;
     }
 
+    public double calculateTotalBaseCost(List<OrderDetailsRequest> allItems) throws Exception {
+        double totalBaseCost=0;
+        for (OrderDetailsRequest item:allItems){
+            ProductEntity product=getEntity.findProductById(item.productId());
+            double sumCost=product.getBaseCost()*item.quantity();
+            totalBaseCost+=sumCost;
+        }
+        return totalBaseCost;
 
+    }
 }

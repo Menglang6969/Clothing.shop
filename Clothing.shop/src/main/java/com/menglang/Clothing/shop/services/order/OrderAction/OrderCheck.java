@@ -36,7 +36,6 @@ public class OrderCheck {
             OrderItemsEntity order_item = validateOrderItems(item, order);
             order_items.add(order_item);
         }
-
         return new HashSet<>(order_items);
     }
 

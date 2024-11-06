@@ -45,7 +45,10 @@ spring:
         web-allow-others: false
   application:
     name: "Clothing Shop"
-
 springdoc:
+  swagger-ui:
+    enabled: true
   api-docs:
     enabled: true
+
+

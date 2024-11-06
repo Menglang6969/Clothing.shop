@@ -106,6 +106,7 @@ public class OrderServiceImpl implements OrderService {
            log.info("invoke create order..............");
            OrderEntity newOrder = new OrderEntity();
            validateProductPrice(data.items());
+
            CustomerTypeResponse customerRes = customerService.checkCustomerType(
                    data.customerType(),
                    data.customer(),
@@ -126,8 +127,8 @@ public class OrderServiceImpl implements OrderService {
            totalPrice = calculatePrice.calculateDiscountPrice(totalPrice, newOrder.getDiscountedPercent(), newOrder.getDiscountedPrice());
            newOrder.setOrderItems(itemsDetails);
            newOrder.setTotalPrice(totalPrice);
+           newOrder.setTotalBasePrice(calculatePrice.calculateTotalBaseCost(data.items()));
            newOrder.setTotalPriceKHR(totalPrice*4000);
-
 
            OrderEntity saveOrder = orderRepository.save(newOrder);
            Set<OrderItemsEntity> items = newOrder.getOrderItems();
@@ -165,5 +166,7 @@ public class OrderServiceImpl implements OrderService {
     private String generateOrderNo(){
         return "ORD"+Math.round(Math.random()*100000);
     }
+
+
 
 }

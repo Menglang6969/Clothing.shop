@@ -2,6 +2,7 @@ package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
+import com.menglang.Clothing.shop.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,9 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "order_tbl")
+@Table(name = "order_tbl",
+        indexes = @Index(name = "id_order_no", columnList = "order_no")
+)
 public class OrderEntity extends BaseAuditEntity<Long> {
 
     @ManyToOne
@@ -49,9 +52,14 @@ public class OrderEntity extends BaseAuditEntity<Long> {
     @JoinColumn(name = "customer_id")
     private CustomerEntity customer;
 
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItemsEntity> orderItems;
 
+    @Column(name = "total_base_price")
+    Double totalBasePrice;
+
     private String address;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 }

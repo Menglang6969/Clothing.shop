@@ -41,18 +41,10 @@ public class StockDTO {
                     .build();
 
             stockResponseMap.putIfAbsent(product_id,new StockResponse(product_id,product_name,new ArrayList<>()));
-            log.info("product details: {} size: {} color:{} quantity:{}", product_id, size, color, quantity);
-
             stockResponseMap.get(product_id).getProductDetails().add(productDetails);
-            log.info("Stock product details: {} ", stockResponseMap.get(product_id));
         }
         return new ArrayList<>(stockResponseMap.values());
 
     }
-
-    private StockEntity checkExistProduct(List<StockEntity> data, Long id) {
-        return (StockEntity) data.stream().filter(p -> p.getProduct().getId().equals(id));
-    }
-
 
 }

@@ -31,7 +31,6 @@ public class BaseResponse implements Serializable {
 
     public static ResponseEntity<BaseResponse> successful(Page<BasePageResponse> res,String message) {
         List<BasePageResponse> data = res.getContent();
-        log.info("data res-----------------{}{}",data,res);
         PageResponse page;
         if (res.getPageable().isUnpaged()) {
             page = null;
@@ -60,10 +59,7 @@ public class BaseResponse implements Serializable {
         BodyResponse bodyData = BodyResponse.builder().build();
 
         BaseResponse res = BaseResponse.builder().build();
-        log.info(" data res: {}",data.toString());
-        log.info(" data page: {}",page);
         if (data instanceof BasePageResponse) {
-            log.info(" data instance: {}",data);
             bodyData.setData(data);
         } else if (data instanceof List<?>) {
             if (!((List<?>) data).isEmpty() && ((List<?>) data).get(0) instanceof BasePageResponse) {
