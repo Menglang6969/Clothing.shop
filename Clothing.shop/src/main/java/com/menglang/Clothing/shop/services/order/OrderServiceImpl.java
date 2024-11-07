@@ -10,6 +10,7 @@ import com.menglang.Clothing.shop.dto.order.orderDetails.OrderDetailsRequest;
 import com.menglang.Clothing.shop.dto.pageResponse.BaseResponse;
 import com.menglang.Clothing.shop.dto.purchase.purchaseOrder.PurchaseOrderMapper;
 import com.menglang.Clothing.shop.entity.*;
+import com.menglang.Clothing.shop.entity.enums.PaymentStatus;
 import com.menglang.Clothing.shop.entity.enums.PurchaseStatus;
 import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
@@ -129,7 +130,7 @@ public class OrderServiceImpl implements OrderService {
            newOrder.setTotalPrice(totalPrice);
            newOrder.setTotalBasePrice(calculatePrice.calculateTotalBaseCost(data.items()));
            newOrder.setTotalPriceKHR(totalPrice*4000);
-
+           newOrder.setStatus(PaymentStatus.DEBT);
            OrderEntity saveOrder = orderRepository.save(newOrder);
            Set<OrderItemsEntity> items = newOrder.getOrderItems();
            orderItemRepository.saveAll(items);

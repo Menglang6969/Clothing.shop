@@ -7,6 +7,7 @@ import com.menglang.Clothing.shop.dto.branch.BranchDTO;
 import com.menglang.Clothing.shop.dto.customer.CustomerDTO;
 import com.menglang.Clothing.shop.dto.order.orderDetails.OrderDetailsResponse;
 import com.menglang.Clothing.shop.entity.enums.CustomerType;
+import com.menglang.Clothing.shop.entity.enums.PaymentStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,8 +48,11 @@ public class OrderResponse extends BaseResponseAudit {
     double totalPriceKHR;
 
     @JsonProperty(index = 12)
-    String address;
+    PaymentStatus status;
+
     @JsonProperty(index = 13)
+    String address;
+    @JsonProperty(index = 14)
     List<OrderDetailsResponse> orderItems;
 
     public OrderResponse(String createdBy, String updatedBy, Date createdAt, Date updatedAt) {

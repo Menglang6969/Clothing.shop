@@ -5,11 +5,13 @@ import com.menglang.Clothing.shop.dto.BaseResponseAudit;
 import com.menglang.Clothing.shop.dto.customer.CustomerDTO;
 import jakarta.persistence.Column;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
 @Getter
 @Setter
+
 public class PaymentResponse extends BaseResponseAudit {
     @JsonProperty(index = 1)
     Long id;
@@ -24,9 +26,12 @@ public class PaymentResponse extends BaseResponseAudit {
     @JsonProperty(index = 6)
     private Double debtUSD;
     @JsonProperty(index = 7)
+    private Double totalDebt;
+    @JsonProperty(index = 8)
     private String description;
 
     public PaymentResponse(String createdBy, String updatedBy, Date createdAt, Date updatedAt) {
         super(createdBy, updatedBy, createdAt, updatedAt);
     }
+
 }

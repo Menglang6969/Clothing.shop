@@ -8,8 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
+
+    @Query("SELECT p FROM PaymentEntity p "+
+        "WHERE p.order=?1 AND p.debt > 0 ")
+    public List<PaymentEntity> findPreviousPayment(OrderEntity order,Pageable pageable);
+
 
     @Query("SELECT p FROM PaymentEntity p " +
             "JOIN p.order o " +

@@ -32,6 +32,8 @@ public class PaymentEntity extends BaseAuditEntity<Long> {
     @Column(name = "debt_usd")
     private Double debtUSD;
 
+    @Column(name = "debt")
+    private Double debt;
 
     private String description;
 

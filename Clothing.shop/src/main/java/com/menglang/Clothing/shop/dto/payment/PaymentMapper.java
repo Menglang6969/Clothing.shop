@@ -10,6 +10,7 @@ public interface PaymentMapper {
     PaymentMapper INSTANCE= Mappers.getMapper(PaymentMapper.class);
 
     @Mapping(target = "orderNo",source = "order.orderNo")
+    @Mapping(target = "totalDebt",source = "debt")
     PaymentResponse toPaymentDTO(PaymentEntity payment);
 
 }

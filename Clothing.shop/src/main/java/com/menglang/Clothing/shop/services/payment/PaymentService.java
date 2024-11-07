@@ -6,6 +6,6 @@ import com.menglang.Clothing.shop.exceptions.BadRequestException;
 
 public interface PaymentService {
     PaymentResponse makePayment(PaymentRequest data) throws BadRequestException;
-    PaymentResponse deletePayment(PaymentRequest data) throws BadRequestException;
+    PaymentResponse deletePayment(Long data) throws BadRequestException;
     PaymentResponse editPayment(Long id,PaymentRequest data) throws BadRequestException;
 }
