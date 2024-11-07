@@ -87,10 +87,10 @@ public class SeedingData {
                    .title("NIKE")
                    .category(category)
                    .description("Made from Cambodia")
-                   .baseCost(5.55)
+                   .baseCost(5.0)
                    .colors(colorsSet)
                    .sizes(productSizes)
-                   .sellCost(8.99)
+                   .sellCost(10.0)
                    .imageUrl("https://localhost:image_url")
                    .build();
 
@@ -98,10 +98,10 @@ public class SeedingData {
                    .title("Adidas")
                    .category(category)
                    .description("Made from Cambodia")
-                   .baseCost(5.55)
+                   .baseCost(5.0)
                    .colors(colorsSet)
                    .sizes(productSizes)
-                   .sellCost(8.99)
+                   .sellCost(10.0)
                    .imageUrl("https://localhost:image_url")
                    .build();
 
@@ -109,10 +109,10 @@ public class SeedingData {
                    .title("Jodan")
                    .category(category)
                    .description("Made from Cambodia")
-                   .baseCost(5.55)
+                   .baseCost(5.0)
                    .colors(colorsSet)
                    .sizes(productSizes)
-                   .sellCost(8.99)
+                   .sellCost(10.0)
                    .imageUrl("https://localhost:image_url")
                    .build();
 
