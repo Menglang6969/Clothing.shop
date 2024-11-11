@@ -17,6 +17,10 @@ public class ExpenseIncomeEntity extends BaseAuditEntity<Long> {
     @Enumerated(EnumType.STRING)
     private ExpenseIncomeType type;
 
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private BranchEntity branch;
+
     @Column(name = "expense_income_on")
     private String expenseIncomeOn;
 

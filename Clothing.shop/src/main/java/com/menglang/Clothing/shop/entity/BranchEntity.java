@@ -1,12 +1,11 @@
 package com.menglang.Clothing.shop.entity;
 
 import com.menglang.Clothing.shop.entity.base.BaseAuditEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
-
-import java.util.HashSet;
-import java.util.Set;
 @Builder
 @Entity
 @AllArgsConstructor

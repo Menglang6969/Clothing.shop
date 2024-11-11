@@ -20,15 +20,15 @@ public interface OrderRepository extends JpaRepository<OrderEntity,Long> {
     @Query("SELECT o FROM OrderEntity o WHERE (?1 IS NULL OR o.branch = ?1) AND o.createdAt >= ?2 AND o.createdAt <= ?3")
     Page<OrderEntity> findAllByBranchAndCreatedAtBetween(BranchEntity branch, Date createdAt, Date endDate, Pageable pageable);
 
-    @Query("SELECT SUM(o.totalPrice) FROM OrderEntity o WHERE  (?1 IS NULL OR o.branch = ?1) AND o.createdAt  BETWEEN ?1 AND ?2")
-    Double sumTotalPriceBetweenDates(Date startDate, Date endDate);
 
-    @Query("SELECT SUM(o.totalPriceKHR) FROM OrderEntity o WHERE (?1 IS NULL OR o.branch = ?1) AND o.createdAt BETWEEN ?1 AND ?2")
-    Double sumTotalPriceKHRBetweenDates(Date startDate, Date endDate);
+    @Query("SELECT SUM(o.totalBasePrice) FROM OrderEntity o WHERE  (?1 IS NULL OR o.branch = ?1) AND o.createdAt BETWEEN ?2 AND ?3")
+    Double sumTotalBaseCostBetweenDates(BranchEntity branch, Date startDate, Date endDate) ;
 
-    @Query("SELECT SUM(o.totalBasePrice) FROM OrderEntity o WHERE  (?1 IS NULL OR o.branch = ?1) AND o.createdAt BETWEEN ?1 AND ?2")
-    Double sumTotalBaseCostBetweenDates(Date startDate, Date endDate);
+    @Query("SELECT SUM(o.totalPrice) FROM OrderEntity o WHERE  (?1 IS NULL OR o.branch = ?1) AND o.createdAt BETWEEN ?2 AND ?3")
+    Double sumTotalPriceUSDBetweenDates(BranchEntity branch, Date startDate, Date endDate) ;
 
     @Query("SELECT o FROM OrderEntity o where o.orderNo=?1")
     Optional<OrderEntity> findOrderByOrderNo(String orderNo);
+
+
 }

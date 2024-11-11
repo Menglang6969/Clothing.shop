@@ -3,11 +3,14 @@ package com.menglang.Clothing.shop.services.expenseIncome;
 import com.menglang.Clothing.shop.dto.ResponseTemplate;
 import com.menglang.Clothing.shop.dto.expenseIncome.ExpenseIncomeMapper;
 import com.menglang.Clothing.shop.dto.expenseIncome.ExpenseIncomeRequest;
+import com.menglang.Clothing.shop.entity.BranchEntity;
 import com.menglang.Clothing.shop.entity.ExpenseIncomeEntity;
 import com.menglang.Clothing.shop.entity.enums.ExpenseIncomeType;
 import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.CustomMessageException;
 import com.menglang.Clothing.shop.exceptions.NotFoundException;
+import com.menglang.Clothing.shop.helpers.GetEntitiesById;
+import com.menglang.Clothing.shop.repositories.BranchRepository;
 import com.menglang.Clothing.shop.repositories.ExpenseIncomeRepository;
 import com.menglang.Clothing.shop.utils.PageableResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +23,16 @@ import org.springframework.stereotype.Service;
 public class ExpenseIncomeServiceImpl implements ExpenseIncomeService {
     private final ExpenseIncomeRepository expenseIncomeRepository;
     private final ExpenseIncomeMapper expenseIncomeMapper;
+    private final BranchRepository branchRepository;
 
     @Override
     public ResponseTemplate create(ExpenseIncomeRequest data) throws Exception {
+        BranchEntity branch=branchRepository.findById(data.branch()).orElseThrow(()->new NotFoundException("Branch Not Found"));
         try {
             ExpenseIncomeEntity expenseIncome = ExpenseIncomeEntity.builder()
                     .expenseIncomeOn(data.expenseIncomeOn())
                     .amount(data.amount())
+                    .branch(branch)
                     .description(data.description())
                     .type(data.expenseIncomeType())
                     .build();
@@ -54,6 +60,7 @@ public class ExpenseIncomeServiceImpl implements ExpenseIncomeService {
 
     @Override
     public ResponseTemplate update(Long id, ExpenseIncomeRequest data) throws Exception {
+
         try {
             ExpenseIncomeEntity expenseIncome = this.findById(id);
             expenseIncome.setExpenseIncomeOn(data.expenseIncomeOn());

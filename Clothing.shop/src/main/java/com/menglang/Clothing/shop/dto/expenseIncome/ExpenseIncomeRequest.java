@@ -14,7 +14,8 @@ public record ExpenseIncomeRequest(
         String expenseIncomeOn,
 
         double amount,
-        String description
+        String description,
+        Long branch
 ) {
 
 }

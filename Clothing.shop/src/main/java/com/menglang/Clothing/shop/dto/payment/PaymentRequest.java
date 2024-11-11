@@ -5,8 +5,10 @@ import lombok.Builder;
 
 @Builder
 public record PaymentRequest(
+        Long branch,
         @JsonProperty("order_no")
         String orderNo,
+
         String customer,
         @JsonProperty("pay_usd")
         double payUSD,

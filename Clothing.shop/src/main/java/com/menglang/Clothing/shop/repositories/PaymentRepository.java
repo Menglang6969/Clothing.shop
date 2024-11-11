@@ -24,6 +24,12 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
             "WHERE p.customer=?2 OR (?1 IS NULL OR p.order=?1)")
     public Page<PaymentEntity> findPaymentByOrderORByCustomer(OrderEntity order, String customer, Pageable pageable);
 
-    @Query("Select Sum(p.debt) from PaymentEntity p where (?1 IS NULL OR o.branch = ?1) AND p.createdAt BETWEEN ?1 AND ?2")
+    @Query("Select Sum(p.debt) from PaymentEntity p where (?1 IS NULL OR p.branch = ?1) AND p.createdAt BETWEEN ?2 AND ?3")
     public Double getTotalDebtBetweenDate(BranchEntity branch, Date startDate, Date endDate);
+
+    @Query("SELECT SUM(p.payKHR) FROM PaymentEntity p WHERE (?1 IS NULL OR p.branch = ?1) AND p.createdAt BETWEEN ?2 AND ?3")
+    Double sumTotalPriceKHRBetweenDates(BranchEntity branch,Date startDate, Date endDate);
+
+    @Query("SELECT SUM(p.payUSD) FROM PaymentEntity p WHERE  (?1 IS NULL OR p.branch = ?1) AND p.createdAt BETWEEN ?2 AND ?3")
+    Double sumTotalPriceUSDBetweenDates(BranchEntity branch,Date startDate, Date endDate);
 }

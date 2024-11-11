@@ -1,13 +1,16 @@
 package com.menglang.Clothing.shop.services.payment;
 
+import com.menglang.Clothing.shop.dto.payment.MoneyChecker;
 import com.menglang.Clothing.shop.dto.payment.PaymentMapper;
 import com.menglang.Clothing.shop.dto.payment.PaymentRequest;
 import com.menglang.Clothing.shop.dto.payment.PaymentResponse;
+import com.menglang.Clothing.shop.entity.BranchEntity;
 import com.menglang.Clothing.shop.entity.OrderEntity;
 import com.menglang.Clothing.shop.entity.PaymentEntity;
 import com.menglang.Clothing.shop.entity.enums.PaymentStatus;
 import com.menglang.Clothing.shop.exceptions.BadRequestException;
 import com.menglang.Clothing.shop.exceptions.NotFoundException;
+import com.menglang.Clothing.shop.repositories.BranchRepository;
 import com.menglang.Clothing.shop.repositories.OrderRepository;
 import com.menglang.Clothing.shop.repositories.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderRepository orderRepository;
     @Autowired
     private final PaymentRepository paymentRepository;
+
+    @Autowired
+    private final BranchRepository branchRepository;
+
     @Autowired
     private final PaymentMapper paymentMapper;
 
@@ -40,28 +47,36 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public PaymentResponse makePayment(PaymentRequest data) throws BadRequestException {
         OrderEntity order = orderRepository.findOrderByOrderNo(data.orderNo()).orElseThrow(() -> new NotFoundException("Order Not Found"));
+        BranchEntity branch = branchRepository.findById(data.branch()).orElseThrow(() -> new NotFoundException("Branch Not Found"));
 
+        if (!order.getBranch().getId().equals(branch.getId())) throw new BadRequestException("Branch Not Match");
         //validate order is Success
-        if(order.getStatus().equals(PaymentStatus.SUCCESS)) throw new BadRequestException(" This Order "+order.getOrderNo()+" Already Payment");
+        if (order.getStatus().equals(PaymentStatus.SUCCESS))
+            throw new BadRequestException(" This Order " + order.getOrderNo() + " Already Payment");
 
-        PaymentEntity previousPayment=getPreviousPayment(order);
-        double debt = 0;
-        if (data.payKHR() != 0) {
-            debt = (data.payKHR() / 4000);
-        }
-        debt += data.payUSD();
+        PaymentEntity previousPayment = getPreviousPayment(order);
+
+        double debt = calculateTotalPayment(data.payKHR(),data.payUSD());
+
         PaymentEntity paymentEntity = new PaymentEntity();
         paymentEntity.setOrder(order);
         paymentEntity.setDescription(data.description());
-        paymentEntity.setPayUSD(data.payUSD());
-        paymentEntity.setPayKHR(data.payKHR());
+
+        paymentEntity.setBranch(branch);
         paymentEntity.setCustomer(data.customer());
 
-        if (previousPayment!= null) {
-            log.info("next time create payment.....{} debt:{} ",previousPayment.getDebt(),debt);
-            paymentEntity.setDebtUSD(calculateDebt(previousPayment.getDebt()-debt));
-            paymentEntity.setDebt(calculateDebt(previousPayment.getDebt()-debt));
-            updateOrderStatus(previousPayment.getDebt()-debt,order,false);
+        if (previousPayment != null) {
+            log.info("next time create payment.....{} debt:{} ", previousPayment.getDebt(), debt);
+            paymentEntity.setDebtUSD(calculateDebt(previousPayment.getDebt() - debt));
+            paymentEntity.setDebt(calculateDebt(previousPayment.getDebt() - debt));
+
+            MoneyChecker payment=checkMoneyGreaterThanDebt(data.payUSD(),data.payKHR(), previousPayment.getDebt());
+
+            paymentEntity.setPayUSD(payment.paymentUSD());
+            paymentEntity.setPayKHR(payment.paymentKHR());
+            paymentEntity.setReturnMoney(payment.returnMoney());
+
+            updateOrderStatus(previousPayment.getDebt() - debt, order, false);
             //reset previous debtUsd to 0 ez to query
             previousPayment.setDebt(0.0);
             try {
@@ -71,22 +86,26 @@ public class PaymentServiceImpl implements PaymentService {
             }
         } else {
             log.info("first create payment");
-            paymentEntity.setDebtUSD(calculateDebt(order.getTotalPrice()-debt));
+            MoneyChecker payment=checkMoneyGreaterThanDebt(data.payUSD(),data.payKHR(), debt);
+            paymentEntity.setPayUSD(payment.paymentUSD());
+            paymentEntity.setPayKHR(payment.paymentKHR());
+            paymentEntity.setReturnMoney(payment.returnMoney());
+            paymentEntity.setDebtUSD(calculateDebt(order.getTotalPrice() - debt));
             paymentEntity.setDebt(calculateDebt(order.getTotalPrice() - debt));
         }
-       try{
-           return paymentMapper.toPaymentDTO(paymentRepository.save(paymentEntity));
-       }catch (Exception e){
-           throw new BadRequestException(e.getMessage());
-       }
+        try {
+            return paymentMapper.toPaymentDTO(paymentRepository.save(paymentEntity));
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     @Override
     public PaymentResponse deletePayment(Long id) throws BadRequestException {
-        PaymentEntity payment=paymentRepository.findById(id).orElseThrow(()->new NotFoundException("Payment Not Found"));
-        try{
+        PaymentEntity payment = paymentRepository.findById(id).orElseThrow(() -> new NotFoundException("Payment Not Found"));
+        try {
             paymentRepository.delete(payment);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
         return paymentMapper.toPaymentDTO(payment);
@@ -101,20 +120,21 @@ public class PaymentServiceImpl implements PaymentService {
         OrderEntity order = orderRepository.findOrderByOrderNo(data.orderNo()).orElseThrow(() -> new NotFoundException("Order Not Found"));
 
         //calculate paymentUSD + PaymentKHR
-        double debt = 0;
-        if (data.payKHR() != 0) {
-            debt = (data.payKHR() / 4000);
-        }
-        debt += data.payUSD();
+        double debt = calculateTotalPayment(data.payKHR(),data.payUSD());
 
         payment.setCustomer(data.customer());
         payment.setDescription(data.description());
         payment.setOrder(order);
-        payment.setPayUSD(data.payUSD());
-        payment.setPayKHR(data.payKHR());
+
+        MoneyChecker moneyChecker=checkMoneyGreaterThanDebt(data.payUSD(),data.payKHR(),debt);
+
+        payment.setPayUSD(moneyChecker.paymentUSD());//set equal debt case input highter
+        payment.setPayKHR(moneyChecker.paymentKHR());
+        payment.setReturnMoney(moneyChecker.returnMoney());
+
         payment.setDebtUSD(order.getTotalPrice() - debt);
-        payment.setDebt(order.getTotalPrice()-debt);
-        updateOrderStatus(order.getTotalPrice()-debt,order,true);
+        payment.setDebt(order.getTotalPrice() - debt);
+        updateOrderStatus(order.getTotalPrice() - debt, order, true);
         try {
             return paymentMapper.toPaymentDTO(paymentRepository.save(payment));
         } catch (Exception e) {
@@ -132,31 +152,63 @@ public class PaymentServiceImpl implements PaymentService {
         return daysBetween < 7;
     }
 
-    private PaymentEntity getPreviousPayment(OrderEntity order){
-        try{
-            List<PaymentEntity> paymentPrevious = paymentRepository.findPreviousPayment(order, PageRequest.of(0,1));
+    private PaymentEntity getPreviousPayment(OrderEntity order) {
+        try {
+            List<PaymentEntity> paymentPrevious = paymentRepository.findPreviousPayment(order, PageRequest.of(0, 1));
             return paymentPrevious.isEmpty() ? null : paymentPrevious.get(0);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
     }
 
-    private void updateOrderStatus(double debt,OrderEntity order,Boolean update){
-        if (debt<=0){
+    private void updateOrderStatus(double debt, OrderEntity order, Boolean update) {
+        if (debt <= 0) {
             order.setStatus(PaymentStatus.SUCCESS);
-            try{
+            try {
                 orderRepository.save(order);
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new BadRequestException(e.getMessage());
             }
-        }else{
-            if(update){
+        } else {
+            if (update) {
                 order.setStatus(PaymentStatus.DEBT);
                 orderRepository.save(order);
             }
         }
     }
-    private double calculateDebt(double debt){
-        return debt>=0?debt:0;
+
+    private double calculateDebt(double debt) {
+        return debt >= 0 ? debt : 0;
     }
+
+
+    private MoneyChecker checkMoneyGreaterThanDebt(double payUSD, double payKHR, double debt) {
+        double totalMoney = (payKHR / 4000) + payUSD;
+
+        if (totalMoney > debt) {
+            double returnMoney=totalMoney-debt;
+            return MoneyChecker.builder()
+                    .paymentUSD(payUSD)
+                    .returnMoney(returnMoney)
+                    .paymentKHR(payKHR-(returnMoney*4000))
+                    .build();
+        }
+        return MoneyChecker
+                .builder()
+                .paymentKHR(payKHR)
+                .paymentUSD(payUSD)
+                .returnMoney(0.0)
+                .build();
+
+    }
+
+    private double calculateTotalPayment(double payKHR,double payUSD){
+        double totalPayment = 0;
+        if (payKHR != 0) {
+            totalPayment = (payKHR / 4000);
+        }
+        totalPayment += payUSD;
+        return totalPayment;
+    }
+
 }

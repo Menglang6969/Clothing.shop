@@ -21,6 +21,10 @@ public class PaymentEntity extends BaseAuditEntity<Long> {
     @JoinColumn(name = "order_no",nullable = false)
     private OrderEntity order;
 
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private BranchEntity branch;
+
     @Column(name = "customer")
     private String customer;
 
@@ -34,6 +38,9 @@ public class PaymentEntity extends BaseAuditEntity<Long> {
 
     @Column(name = "debt")
     private Double debt;
+
+    @Column(name = "return_money")
+    private Double returnMoney;
 
     private String description;
 

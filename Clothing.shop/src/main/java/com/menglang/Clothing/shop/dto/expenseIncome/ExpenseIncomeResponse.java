@@ -2,6 +2,7 @@ package com.menglang.Clothing.shop.dto.expenseIncome;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.menglang.Clothing.shop.dto.BaseResponseAudit;
+import com.menglang.Clothing.shop.dto.branch.BranchDTO;
 import com.menglang.Clothing.shop.entity.enums.ExpenseIncomeType;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,10 @@ public class ExpenseIncomeResponse extends BaseResponseAudit {
     @JsonProperty(index = 5)
     String description;
 
+    BranchDTO branch;
+
     public ExpenseIncomeResponse(String createdBy, String updatedBy, Date createdAt, Date updatedAt) {
         super(createdBy, updatedBy, createdAt, updatedAt);
     }
+
 }

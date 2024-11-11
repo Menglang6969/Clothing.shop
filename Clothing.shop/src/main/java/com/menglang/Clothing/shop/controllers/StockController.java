@@ -33,23 +33,6 @@ public class StockController {
     private final StockService stockService;
 
 
-//    @GetMapping("/get-all")
-//    public ResponseEntity<BaseResponse> getAllStocks(
-//            @RequestParam(name = "page", defaultValue = "1", required = false) int page,
-//            @RequestParam(name = "limit", defaultValue = "5", required = false) int limit,
-//            @RequestParam(name = "sort", required = false) String sort,
-//            @RequestParam(name = "query", required = false, defaultValue = "") String query
-//    ) throws Exception {
-//        Page<StockEntity> stockEntities = this.stockService.getAll(page, limit, sort, query);
-//        log.info("data stock entity---{}",stockEntities.stream().map(StockEntity::getProduct));
-//        List<StockEntity> listStock = stockEntities.stream().toList();
-//        log.info("data stock list---{}",listStock.stream().map(StockEntity::getProduct));
-//        StockDTO stockDTO = new StockDTO();
-//        List<StockResponse> stockResponseList = stockDTO.mapToStockDTO(listStock);
-//        log.info("data stock response---{}",stockResponseList.stream().map(StockResponse::getName));
-//        return BaseResponse.success(listStock, stockEntities, "success");
-//    }
-
     @GetMapping("/get-all")
     public ResponseEntity<BaseResponse> getAllStocks(
             @RequestParam(name = "page", defaultValue = "1", required = false) int page,
