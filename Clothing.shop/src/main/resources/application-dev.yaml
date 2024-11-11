@@ -1,0 +1,13 @@
+jwt:
+  url: '/authorization'
+  header: 'Authorization'
+  prefix: 'Bearer '
+  expire: 36000
+  secrete: '42742c99f7c62f94a4fabc5940800b5a98d0d3b30e2348bf0aa87683d6383698'
+
+file:
+  upload-dir: './uploads'
+  app:
+    api-url: 'https://lang.com'
+    rest-uri: '/file'
+    table-name: 'files'

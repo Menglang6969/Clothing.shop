@@ -39,9 +39,11 @@ public class UserEntity extends BaseAuditEntity<Long> {
             joinColumns = @JoinColumn(name = "user_id",referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id")
     )
+    @Builder.Default
     private Set<RoleEntity> roles=new HashSet<>();
 
     @OneToMany(mappedBy ="user", cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<AddressEntity> address=new HashSet<>();
 
 
@@ -49,16 +51,8 @@ public class UserEntity extends BaseAuditEntity<Long> {
     @CollectionTable(name = "payment_information",
                     joinColumns = @JoinColumn(name = "user_id")
     )
+    @Builder.Default
     private List<PaymentInformation> paymentInformation=new ArrayList<>();
-
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<RatingEntity> rating=new HashSet<>();
-
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JsonIgnore
-    private Set<ReviewEntity> review=new HashSet<>();
 
 
 

@@ -1,0 +1,28 @@
+package com.menglang.Clothing.shop.dto.purchase.purchaseOrder;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.menglang.Clothing.shop.dto.purchase.purchaseItems.ItemRequest;
+import com.menglang.Clothing.shop.entity.enums.CustomerType;
+import lombok.Builder;
+import lombok.NonNull;
+
+import java.util.List;
+
+@Builder
+public record PurchaseOrderRequest(
+
+
+        @JsonProperty("customer_name")
+        String generalCustomer,
+        @JsonProperty("customer_type")
+        CustomerType customerType,
+        Long customer,
+        Long branch,
+        @JsonProperty("discounted_price")
+        double discountedPrice,
+        @JsonProperty("discounted_percent")
+        int discountedPercent,
+        @NonNull
+        List<ItemRequest> items
+) {
+}

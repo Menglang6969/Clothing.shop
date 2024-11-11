@@ -1,29 +1,41 @@
 server:
   port: 8181
 spring:
+  http:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+  profiles:
+    active: dev
+  output:
+    ansi:
+      enabled: ALWAYS
+  batch:
+    jdbc:
+      initialize-schema: always
   servlet:
     multipart:
-      enabled: true
-      max-file-size: 5MB
-      max-request-size: 20MB
-  application:
-    title: Clothing.shop
-    version: v3.3.3
+      file-size-threshold: 2KB
+      max-file-size: 10MB
+      max-request-size: 30MB
   datasource:
     url: jdbc:h2:file:D:/others;DB_CLOSE_DELAY=-1;
     username: lang
     password: lang123
-    driverClassName: org.h2.Driver
+    driver-class-name: org.h2.Driver
+
   jpa:
-    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
-    properties:
-      hibernate:
-        enable_lazy_load_no_trans: true
+    #    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
     show-sql: true
     open-in-view: true
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
+
   h2:
     console:
       enabled: true
@@ -31,16 +43,12 @@ spring:
       settings:
         trace: false
         web-allow-others: false
+  application:
+    name: "Clothing Shop"
 springdoc:
+  swagger-ui:
+    enabled: true
   api-docs:
     enabled: true
 
-# JWT CONFIG
-# Key secret generate https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx
-# expiration 3600 seconds equal 1 hour
-jwt:
-  url: '/authorization'
-  header: 'Authorization'
-  prefix: 'Bearer '
-  expire: 3600
-  secrete: '42742c99f7c62f94a4fabc5940800b5a98d0d3b30e2348bf0aa87683d6383698'
+

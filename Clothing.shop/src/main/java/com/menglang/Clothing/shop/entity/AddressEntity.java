@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 @Table(name = "address_tbl")
 public class AddressEntity extends BaseAuditEntity<Long>{
 
-
     @Column(unique = true, length = 60)
     private String street;
 
@@ -34,5 +33,9 @@ public class AddressEntity extends BaseAuditEntity<Long>{
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private UserEntity user;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
 
 }
